@@ -5,6 +5,7 @@ import { useCallback, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import { DreamSizeSliderField } from "@/components/cotizador/dream-size-slider-field";
+import { QuoteCtaButton } from "@/components/cotizador/quote-cta";
 import { clampSqmToPurposeBounds, parseSqmStored, sqmBoundsForPurpose } from "@/lib/dream-sqm-bounds";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import type { InvestmentPctId, PurposeId, TermId, UbicacionId } from "@/lib/cotizador-ui-store";
@@ -323,15 +324,17 @@ function PlazosYCurrencyRow(): JSX.Element {
 
 export function DesignMesa(): JSX.Element {
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden" aria-label="Parámetros de cotización">
-      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain [-ms-overflow-style:none] [scrollbar-width:thin] sm:gap-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5">
-        <div className="flex shrink-0 flex-col gap-y-2 sm:gap-y-2.5">
-          <DreamRadioGroup />
-          <DreamSizeSlider />
-          <UbicacionField />
-          <InvestmentPctBoxes />
-          <PlazosYCurrencyRow />
-        </div>
+    <section
+      className="flex min-h-0 flex-1 flex-col justify-around overflow-y-auto overscroll-y-contain pb-[max(0.35rem,env(safe-area-inset-bottom))] [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5"
+      aria-label="Parámetros de cotización"
+    >
+      <DreamRadioGroup />
+      <DreamSizeSlider />
+      <UbicacionField />
+      <InvestmentPctBoxes />
+      <PlazosYCurrencyRow />
+      <div className="shrink-0 px-px">
+        <QuoteCtaButton />
       </div>
     </section>
   );

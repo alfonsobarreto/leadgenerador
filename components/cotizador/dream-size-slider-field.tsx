@@ -103,7 +103,7 @@ export function DreamSizeSliderField({
           style={{ width: `${fillPct}%` }}
         />
         <div
-          className="absolute top-1/2 size-[1.35rem] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#8b2cf5] shadow-[0_0_0_1px_rgba(0,0,0,0.35),0_4px_14px_rgba(139,44,245,0.5)] transition-[left] duration-75 sm:size-[1.45rem]"
+          className="absolute top-1/2 size-[1.02rem] -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-white bg-[#8b2cf5] shadow-[0_0_0_1px_rgba(0,0,0,0.35),0_3px_10px_rgba(139,44,245,0.45)] transition-[left] duration-75 sm:size-[1.09rem]"
           style={{ left: `${fillPct}%` }}
           aria-hidden
         />

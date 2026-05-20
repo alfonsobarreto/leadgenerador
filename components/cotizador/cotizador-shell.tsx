@@ -2,7 +2,6 @@ import type { JSX } from "react";
 import { CotizadorBackground } from "./cotizador-background";
 import { FinancialDashboard } from "./financial-dashboard";
 import { DesignMesa } from "./design-mesa";
-import { QuoteCtaButton } from "./quote-cta";
 
 /**
  * Pantalla tipo app nativa: alto fijo (`100dvh`), sin scroll global;
@@ -18,15 +17,7 @@ export function CotizadorShell(): JSX.Element {
             <FinancialDashboard />
           </header>
 
-          <div className="flex min-h-0 flex-1 flex-col pb-[max(0.35rem,env(safe-area-inset-bottom))]">
-            <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <DesignMesa />
-            </main>
-
-            <div className="mt-auto shrink-0 px-px pt-1">
-              <QuoteCtaButton />
-            </div>
-          </div>
+          <DesignMesa />
         </div>
       </div>
     </div>
