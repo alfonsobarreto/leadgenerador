@@ -201,7 +201,7 @@ function DreamSizeSlider(): JSX.Element {
         </span>
       </div>
 
-      <div className="touch-manipulation px-0.5 py-1">
+      <div className="touch-manipulation px-0.5 py-2.5">
         <input
           id="dream-size-slider"
           type="range"
@@ -218,7 +218,7 @@ function DreamSizeSlider(): JSX.Element {
           style={{
             background: `linear-gradient(to right, #8b2cf5 0%, #8b2cf5 ${fillPct}%, rgba(255,255,255,0.22) ${fillPct}%, rgba(255,255,255,0.22) 100%)`,
           }}
-          className="dream-size-range h-11 w-full min-h-[2.75rem] cursor-pointer appearance-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+          className="dream-size-range block w-full cursor-pointer appearance-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
         />
         <div className="mt-0.5 flex justify-between px-0.5 text-[0.58rem] font-semibold tabular-nums text-white/55">
           <span>{min}</span>

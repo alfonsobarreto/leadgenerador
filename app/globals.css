@@ -37,49 +37,51 @@ input[type="number"] {
   appearance: textfield;
 }
 
-/* Slider m² — área táctil amplia (Mesa de diseño) */
+/* Slider m² — pista ~2/5 del grosor anterior; thumb proporcional */
 input.dream-size-range {
-  height: 0.65rem;
+  --dream-track-h: 0.26rem;
+  --dream-thumb-size: 0.68rem;
+  height: var(--dream-track-h);
   border-radius: 9999px;
 }
 
 input.dream-size-range::-webkit-slider-runnable-track {
-  height: 0.65rem;
+  height: var(--dream-track-h);
   border-radius: 9999px;
 }
 
 input.dream-size-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 1.65rem;
-  height: 1.65rem;
-  margin-top: -0.5rem;
+  width: var(--dream-thumb-size);
+  height: var(--dream-thumb-size);
+  margin-top: calc((var(--dream-track-h) - var(--dream-thumb-size)) / 2);
   border-radius: 9999px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
   background: #8b2cf5;
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.35),
-    0 6px 16px rgba(139, 44, 245, 0.45);
+    0 0 0 1px rgba(0, 0, 0, 0.3),
+    0 3px 10px rgba(139, 44, 245, 0.4);
   cursor: grab;
 }
 
 input.dream-size-range:active::-webkit-slider-thumb {
   cursor: grabbing;
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
 input.dream-size-range::-moz-range-track {
-  height: 0.65rem;
+  height: var(--dream-track-h);
   border-radius: 9999px;
   background: transparent;
 }
 
 input.dream-size-range::-moz-range-thumb {
-  width: 1.65rem;
-  height: 1.65rem;
+  width: var(--dream-thumb-size);
+  height: var(--dream-thumb-size);
   border-radius: 9999px;
-  border: 2px solid rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
   background: #8b2cf5;
-  box-shadow: 0 6px 16px rgba(139, 44, 245, 0.45);
+  box-shadow: 0 3px 10px rgba(139, 44, 245, 0.4);
   cursor: grab;
 }
