@@ -1,28 +1,45 @@
 /**
  * Mensajes + avatares placeholder (URLs listas para reemplazar).
+ * Textos y query `text=` de placeholder según especificación de producto.
  */
 export const COTIZADOR_PANEL_MESSAGES = {
-  initial: "¡Alistemos maletas, nos mudamos!",
-  purposeLoteOTerreno: "Todo empezó con un lotesito.",
-  ubicacionInteract: "¡Qué pro, el límite es el cielo!",
-  enganche10: "¡Uray! Ya tenemos plusvalía",
-  enganche5: "¡Bravo! Inversión inteligente",
-  enganche1: "¡Vamos, que el sueño no tenga excusa!",
+  initial: "Hola, Soy el Guardian de Tu sueño, Mucho Gusto",
+
+  purposeCasa: "Alistemos Maletas Nos Mudamos.",
+  purposeTerreno: "Todo Empezo con un lotesito",
+  purposeNegocio: "Que Pro, el cielo es el limite",
+
+  ubicacionSeleccionada: "Ubicacion Seleccionada",
+
+  enganche10: "¡Uray! Ya Tenemos plusvalia",
+  enganche5: "¡Bravo! Inversion Inteligente",
+  enganche1: "¡Vamos, Que el sueño no Tenga Excusa",
+
   tamanoGt150: "¡Gran sueño! Tienes 48 meses sin intereses",
+
   currencyMxn: "¡Órale! Aquí te van en Pesos",
   currencyUsd: "Alright! en dolores",
-  guardianGreeting: "Hola, Soy el Guardian de tu sueño, Mucho gusto",
+
+  guardianGreeting: "Hola, Soy el Guardian de Tu sueño, Mucho Gusto",
 } as const;
 
 export const COTIZADOR_PANEL_AVATARS = {
-  initial: "https://via.placeholder.com/150?text=Avatar+Inicio",
-  purposeLote: "https://via.placeholder.com/150?text=Avatar+Lote",
-  ubicacion: "https://via.placeholder.com/150?text=Avatar+Ubicacion",
-  enganche10: "https://via.placeholder.com/150?text=Avatar+10",
-  enganche5: "https://via.placeholder.com/150?text=Avatar+5",
-  enganche1: "https://via.placeholder.com/150?text=Avatar+1",
-  tamano: "https://via.placeholder.com/150?text=Avatar+Tamano",
-  mxn: "https://via.placeholder.com/150?text=Avatar+MXN",
-  usd: "https://via.placeholder.com/150?text=Avatar+USD",
-  guardianSaludo: "https://via.placeholder.com/150?text=Avatar+Saludo",
+  initial: "https://via.placeholder.com/150?text=Inicial",
+
+  casa: "https://via.placeholder.com/150?text=Casa",
+  terreno: "https://via.placeholder.com/150?text=Terreno",
+  negocio: "https://via.placeholder.com/150?text=Negocio",
+
+  ubicacion: "https://via.placeholder.com/150?text=Ubicacion",
+
+  enganche10: "https://via.placeholder.com/150?text=10",
+  enganche5: "https://via.placeholder.com/150?text=5",
+  enganche1: "https://via.placeholder.com/150?text=1",
+
+  tamano: "https://via.placeholder.com/150?text=Tamano",
+
+  mxn: "https://via.placeholder.com/150?text=MXN",
+  usd: "https://via.placeholder.com/150?text=USD",
+
+  guardianSaludo: "https://via.placeholder.com/150?text=Inicial",
 } as const;

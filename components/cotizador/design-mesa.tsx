@@ -1,9 +1,11 @@
 "use client";
 
-import { ChevronDown, House } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { useEffect } from "react";
 import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import { MesaDeDisenoLogo } from "./mesa-logo";
+import { clampSqmToPurposeBounds, parseSqmStored, sqmBoundsForPurpose } from "@/lib/dream-sqm-bounds";
 import type { InvestmentPctId, PurposeId, TermId, UbicacionId } from "@/lib/cotizador-ui-store";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
 
@@ -23,9 +25,9 @@ function purposeActiveClass(selected: boolean): string {
 
 function DreamRadioGroup(): JSX.Element {
   const opts: readonly { id: PurposeId; label: string }[] = [
-    { id: "lote-habitacional", label: "Lote habitacional" },
-    { id: "terreno", label: "Terreno" },
-    { id: "negocio", label: "Mi negocio" },
+    { id: "lote-habitacional", label: "Mi casa" },
+    { id: "terreno", label: "Mi Terreno" },
+    { id: "negocio", label: "Mi Negocio" },
   ];
 
   const purpose = useCotizadorUiStore((s) => s.purpose);
@@ -157,19 +159,83 @@ function InvestmentPctBoxes(): JSX.Element {
   );
 }
 
+function DreamSizeSlider(): JSX.Element {
+  const purpose = useCotizadorUiStore((s) => s.purpose);
+  const tamanoHuge = useCotizadorUiStore((s) => s.tamanoHuge);
+  const metrosCuadradosStr = useCotizadorUiStore((s) => s.metrosCuadradosStr);
+  const updateDreamSqmRaw = useCotizadorUiStore((s) => s.updateDreamSqmRaw);
+
+  const { min, max } = sqmBoundsForPurpose(purpose);
+  const sqmValue = parseSqmStored(metrosCuadradosStr, purpose);
+
+  useEffect(() => {
+    const raw = useCotizadorUiStore.getState().metrosCuadradosStr;
+    const clamped = clampSqmToPurposeBounds(Number.parseFloat(raw), purpose);
+    if (String(clamped) !== raw) {
+      updateDreamSqmRaw(String(clamped));
+    }
+  }, [purpose, updateDreamSqmRaw]);
+
+  const onSliderChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    updateDreamSqmRaw(event.target.value);
+  };
+
+  const fillPct = max > min ? ((sqmValue - min) / (max - min)) * 100 : 0;
+
+  return (
+    <div
+      className={`rounded-xl border border-white/12 bg-black/28 px-2.5 py-2.5 backdrop-blur-md sm:px-3 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/75 ring-offset-1 ring-offset-black/55" : ""}`}
+    >
+      <div className="mb-2 flex items-baseline justify-between gap-2">
+        <span
+          id="dream-size-slider-label"
+          className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white/90 sm:text-[0.66rem]"
+        >
+          TAMAÑO DEL SUEÑO
+        </span>
+        <span
+          aria-live="polite"
+          className="shrink-0 text-[0.95rem] font-extrabold tabular-nums tracking-tight text-[#87e9db] drop-shadow-[0_0_10px_rgba(135,233,219,0.35)] sm:text-[1.02rem]"
+        >
+          {sqmValue} M²
+        </span>
+      </div>
+
+      <div className="touch-manipulation px-0.5 py-1">
+        <input
+          id="dream-size-slider"
+          type="range"
+          min={min}
+          max={max}
+          step={1}
+          value={sqmValue}
+          onChange={onSliderChange}
+          aria-labelledby="dream-size-slider-label"
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={sqmValue}
+          aria-valuetext={`${sqmValue} metros cuadrados`}
+          style={{
+            background: `linear-gradient(to right, #8b2cf5 0%, #8b2cf5 ${fillPct}%, rgba(255,255,255,0.22) ${fillPct}%, rgba(255,255,255,0.22) 100%)`,
+          }}
+          className="dream-size-range h-11 w-full min-h-[2.75rem] cursor-pointer appearance-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+        />
+        <div className="mt-0.5 flex justify-between px-0.5 text-[0.58rem] font-semibold tabular-nums text-white/55">
+          <span>{min}</span>
+          <span>{max}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function UbicacionField(): JSX.Element {
-  const bumpUbicacion = useCotizadorUiStore((s) => s.bumpUbicacion);
   const ubicacionSeleccionada = useCotizadorUiStore((s) => s.ubicacionSeleccionada);
   const setUbicacionSeleccionada = useCotizadorUiStore((s) => s.setUbicacionSeleccionada);
-
-  const onInteract = (): void => {
-    bumpUbicacion();
-  };
 
   const onSelectChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const next = event.target.value as UbicacionId;
     setUbicacionSeleccionada(next);
-    bumpUbicacion();
   };
 
   return (
@@ -180,9 +246,7 @@ function UbicacionField(): JSX.Element {
           aria-labelledby="property-select-label"
           id="property-select"
           value={ubicacionSeleccionada}
-          onFocus={onInteract}
           onChange={onSelectChange}
-          onClick={onInteract}
           className="h-11 w-full appearance-none rounded-xl border-[1.5px] border-white bg-black/35 px-3 pr-12 text-[0.72rem] font-semibold tracking-tight text-white outline-none backdrop-blur-md hover:bg-black/42 focus-visible:ring-2 focus-visible:ring-[#ddd6fe] sm:h-11 sm:text-[0.78rem]"
         >
           <option value="" disabled className="text-zinc-900">
@@ -211,59 +275,16 @@ function currencyActive(sel: boolean): string {
     : "border-white";
 }
 
-function DreamSizeCurrencyRow(): JSX.Element {
-  const tamanoHuge = useCotizadorUiStore((s) => s.tamanoHuge);
+function CurrencyRow(): JSX.Element {
   const currency = useCotizadorUiStore((s) => s.currency);
   const pickCurrency = useCotizadorUiStore((s) => s.pickCurrency);
-  const updateDreamSqmRaw = useCotizadorUiStore((s) => s.updateDreamSqmRaw);
-  const metrosCuadradosStr = useCotizadorUiStore((s) => s.metrosCuadradosStr);
-
-  const syncSqm = (event: ChangeEvent<HTMLInputElement>): void => {
-    updateDreamSqmRaw(event.target.value);
-  };
 
   return (
-    <div className="grid grid-cols-2 gap-x-2 gap-y-2 sm:gap-x-2.5">
-      <div className="min-w-0">
-        <FieldLabelTiny id="dream-size-label">Tamaño de tu sueño</FieldLabelTiny>
-        <div className="mt-1.5">
-          <div
-            className={`relative flex min-h-[2.75rem] items-center gap-1.5 rounded-lg border-[1.5px] border-white bg-black/45 px-2 py-2 transition-shadow focus-within:ring-2 focus-within:ring-[#ddd6fe]/90 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/80 ring-offset-1 ring-offset-zinc-950/80" : ""}`}
-          >
-            <House
-              aria-hidden
-              className="size-[1.0625rem] shrink-0 text-white/95 sm:size-[1.125rem]"
-              strokeWidth={2.75}
-            />
-            <span className="shrink-0 text-[0.62rem] font-extrabold uppercase tracking-[0.1em] text-white/85" aria-hidden>
-              m²
-            </span>
-            <input
-              id="dream-size-input"
-              aria-labelledby="dream-size-label"
-              aria-describedby="dream-size-hint"
-              placeholder=""
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step={1}
-              value={metrosCuadradosStr}
-              onChange={syncSqm}
-              onFocus={(e) => updateDreamSqmRaw(e.target.value)}
-              className="min-h-0 w-full min-w-0 bg-transparent text-[0.84rem] font-bold tabular-nums text-white outline-none placeholder:text-white/45 sm:text-[0.9rem]"
-            />
-          </div>
-          <span id="dream-size-hint" className="sr-only">
-            Metros cuadrados estimados para la cotización.
-          </span>
-        </div>
-      </div>
-
-      <fieldset className="min-w-0">
-        <legend className="mb-1 block px-px text-[0.72rem] font-bold leading-none text-white sm:text-[0.78rem]">
-          Tipo de cambio
-        </legend>
-        <div className="flex flex-col justify-center gap-1 py-px">
+    <fieldset className="min-w-0">
+      <legend className="mb-1 block px-px text-[0.72rem] font-bold leading-none text-white sm:text-[0.78rem]">
+        Tipo de cambio
+      </legend>
+      <div className="grid grid-cols-2 gap-2">
           <label
             className={`relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.5px] py-2 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] transition-[background,color,border-color,box-shadow] sm:text-[0.66rem] sm:tracking-[0.17em] ${currencyActive(currency === "usd")}`}
           >
@@ -290,9 +311,8 @@ function DreamSizeCurrencyRow(): JSX.Element {
             />
             <span className="pointer-events-none text-white">MXN</span>
           </label>
-        </div>
-      </fieldset>
-    </div>
+      </div>
+    </fieldset>
   );
 }
 
@@ -304,10 +324,11 @@ export function DesignMesa(): JSX.Element {
 
         <div className="flex shrink-0 flex-col gap-y-2 sm:gap-y-2.5">
           <DreamRadioGroup />
+          <DreamSizeSlider />
           <UbicacionField />
           <TermPlazoRadioGroup />
           <InvestmentPctBoxes />
-          <DreamSizeCurrencyRow />
+          <CurrencyRow />
         </div>
       </div>
     </section>

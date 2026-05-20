@@ -1,44 +1,45 @@
 # Panel superior — título dinámico (`dynamicMessage`)
 
-Este documento describe el mapa de interacciones para **texto**, **avatar** y **estado activo** de la Mesa de diseño.
+Mapa de interacciones para **texto**, **avatar** y **estado activo** de la Mesa de diseño.
 
-Se implementa en **Zustand** (`lib/cotizador-ui-store.ts`): cuando aplica la regla, se actualizan juntos **`dynamicMessage`**, **`avatarUrl`** y el control correspondiente (`purpose`, `investmentPct`, `currency`, o `tamanoHuge`).
+Se implementa en **Zustand** (`lib/cotizador-ui-store.ts`). La última acción con triada completa **sobrescribe** texto y avatar en pantalla (salvo el override temporal por **m² > 150**, ver abajo).
 
-La última acción que debe cambiar texto+avatar **los sobrescribe** (no hay cola de mensajes).
+Además se guarda **`baselineTrip`**: último par (mensaje, avatar) fijado por acciones distintas al override de tamaño. Sirve para **restaurar** el panel cuando el valor de m² vuelve a **≤ 150** tras haber estado por encima.
 
 ---
 
-## Mensajes y disparadores
+## Mensajes y disparadores (especificación actual)
 
-| # | Disparador | Texto exacto |
-|---|------------|--------------|
-| 1 | **Estado inicial** (al montar la app) | `¡Alistemos maletas, nos mudamos!` |
-| 2 | **Clic / cambio** en “Tu sueño” → **“Lote habitacional”** **o** **“Terreno”** | `Todo empezó con un lotesito.` |
-| 3 | **Interacción**, **enfoque (`onFocus`)** o **cambio (`onChange`)** del `<select>` de **ubicación / desarrollo** | `¡Qué pro, el límite es el cielo!` |
-| 4 | **Clic** en enganche **“10%”** | `¡Uray! Ya tenemos plusvalía` |
-| 5 | **Clic** en enganche **“5%”** | `¡Bravo! Inversión inteligente` |
-| 6 | **Clic** en enganche **“1%”** | `¡Vamos, que el sueño no tenga excusa!` |
-| 7 | Valor en **“Tamaño de tu sueño” (m²)** **mayor a 150** (`onChange` / al escribir) | `¡Gran sueño! Tienes 48 meses sin intereses` |
-| 8 | Tipo de cambio → **MXN** | `¡Órale! Aquí te van en Pesos` |
-| 9 | Tipo de cambio → **USD** | `Alright! en dolores` |
-| 10 | **Clic directo** en la imagen / tarjeta del **avatar** (Guardián del sueño) | `Hola, Soy el Guardian de tu sueño, Mucho gusto` |
+| # | Disparador | Texto exacto | Avatar (`via.placeholder.com` `text=`) |
+|---|------------|--------------|------------------------------------------|
+| 1 | **Estado inicial** (primera carga) | `Hola, Soy el Guardian de Tu sueño, Mucho Gusto` | `Inicial` |
+| 2 | Clic **Mi casa** (`lote-habitacional`) | `Alistemos Maletas Nos Mudamos.` | `Casa` |
+| 3 | Clic **Mi Terreno** | `Todo Empezo con un lotesito` | `Terreno` |
+| 4 | Clic **Mi Negocio** | `Que Pro, el cielo es el limite` | `Negocio` |
+| 5 | **Selección** de una opción en **Ubicación** (valor distinto de vacío) | `Ubicacion Seleccionada` | `Ubicacion` |
+| 6 | Clic enganche **10%** | `¡Uray! Ya Tenemos plusvalia` | `10` |
+| 7 | Clic enganche **5%** | `¡Bravo! Inversion Inteligente` | `5` |
+| 8 | Clic enganche **1%** | `¡Vamos, Que el sueño no Tenga Excusa` | `1` |
+| — | **m² > 150** (al escribir / cambiar) | `¡Gran sueño! Tienes 48 meses sin intereses` | `Tamano` (placeholder; no altera `baselineTrip`) |
+| — | **m² ≤ 150** tras haber estado > 150 | Restaura **`baselineTrip`** (último estado no-tamaño) | (mismo que `baselineTrip`) |
+| — | Tipo de cambio **MXN** / **USD** | `¡Órale! Aquí te van en Pesos` / `Alright! en dolores` | `MXN` / `USD` |
+| — | Clic en **avatar** (Guardián) | `Hola, Soy el Guardian de Tu sueño, Mucho Gusto` | `Inicial` |
+
+**Ubicación:** el texto “Ubicacion Seleccionada” solo aplica cuando el usuario **elige** una propiedad en el `<select>`, no al hacer foco o abrir el desplegable.
 
 ---
 
 ## Implementación técnica
 
-- **Store:** `lib/cotizador-ui-store.ts` — `dynamicMessage`, `avatarUrl`, `pickPurpose`, `bumpUbicacion`, etc.
-- **Mensajes + URLs placeholder de avatar:** `lib/cotizador-panel-messages.ts` (`COTIZADOR_PANEL_MESSAGES`, `COTIZADOR_PANEL_AVATARS`).
-- **UI:** `financial-dashboard.tsx` (título + imagen del Guardian), `design-mesa.tsx` (controles controlados con resalte persistente).
-
-Nota: **“Mi negocio”** solo fija `purpose` para el resaltado del radio; no altera mensaje ni avatar hasta otra regla con triada completa.
+- **Store:** `lib/cotizador-ui-store.ts` — `dynamicMessage`, `avatarUrl`, `baselineTrip`, `pickPurpose`, `setUbicacionSeleccionada`, `pickInvestmentPct`, `updateDreamSqmRaw`, etc.
+- **Mensajes + URLs:** `lib/cotizador-panel-messages.ts` (`COTIZADOR_PANEL_MESSAGES`, `COTIZADOR_PANEL_AVATARS`).
+- **UI:** `financial-dashboard.tsx`, `design-mesa.tsx` (radios / botones reflejan `purpose`, `investmentPct`, `currency`).
 
 ## Criterios de aceptación manual
 
-1. Al cargar la página, el título es el del ítem **#1**.
-2. Elegir **Lote habitacional** o **Terreno** actualiza al **#2** (sin requerir opción tercera).
-3. Abrir o cambiar el `<select>` de ubicación actualiza al **#3**.
-4. Los tres porcentajes disparan **#4–#6** respectivamente al seleccionarlos.
-5. Con **m² > 150** se muestra **#7**; con valor ≤ 150 no se aplica esta regla desde el input (el mensaje queda el de la última otra acción).
-6. **MXN** y **USD** disparan **#8** y **#9**.
-7. Clic en el avatar dispara **#10**.
+1. Carga inicial: fila **#1** en panel y avatar `Inicial`.
+2. **Mi casa / Mi Terreno / Mi Negocio** actualizan texto, avatar y **resaltado** del control correspondiente (**#2–#4**).
+3. Elegir ubicación concreta: **#5**; foco en el select sin cambiar valor **no** cambia el panel.
+4. **10% / 5% / 1%** disparan **#6–#8** y un solo enganche aparece activo.
+5. **m² > 150**: mensaje de gran sueño; al pasar a **≤ 150**, el panel vuelve al último estado guardado en **`baselineTrip`**.
+6. **MXN** / **USD** y clic en **avatar** actualizan panel y `baselineTrip`.

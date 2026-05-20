@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { clampSqmToPurposeBounds } from "./dream-sqm-bounds";
 import { COTIZADOR_PANEL_AVATARS, COTIZADOR_PANEL_MESSAGES } from "./cotizador-panel-messages";
 
 export type PurposeId = "lote-habitacional" | "terreno" | "negocio";
@@ -16,6 +17,8 @@ type TripTuple = readonly [message: string, avatarUrl: string];
 export type CotizadorUiState = {
   dynamicMessage: string;
   avatarUrl: string;
+  /** Último par texto+avatar fijado por una acción que no sea el override por m² &gt; 150 (para restaurar al volver a ≤ 150). */
+  baselineTrip: TripTuple;
 
   purpose: PurposeId | null;
   investmentPct: InvestmentPctId | null;
@@ -32,9 +35,8 @@ export type CotizadorUiState = {
   tasaCambioMXNPerUSD: number;
 
   pickPurpose: (id: PurposeId) => void;
-  bumpUbicacion: () => void;
   pickInvestmentPct: (id: InvestmentPctId) => void;
-  /** Actualiza texto m² + reglas de tamaño + trip si aplica. */
+  /** Actualiza texto m² + reglas de tamaño (&gt; 150) y restaura panel desde baseline si aplica. */
   updateDreamSqmRaw: (raw: string) => void;
   pickCurrency: (id: CurrencyId) => void;
   guardianTap: () => void;
@@ -48,40 +50,76 @@ const INITIAL_TRIP: TripTuple = [
   COTIZADOR_PANEL_AVATARS.initial,
 ];
 
-export const useCotizadorUiStore = create<CotizadorUiState>((set) => ({
+function tripFromPurpose(id: PurposeId): TripTuple {
+  if (id === "lote-habitacional") {
+    return [COTIZADOR_PANEL_MESSAGES.purposeCasa, COTIZADOR_PANEL_AVATARS.casa];
+  }
+  if (id === "terreno") {
+    return [COTIZADOR_PANEL_MESSAGES.purposeTerreno, COTIZADOR_PANEL_AVATARS.terreno];
+  }
+  return [COTIZADOR_PANEL_MESSAGES.purposeNegocio, COTIZADOR_PANEL_AVATARS.negocio];
+}
+
+export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
   dynamicMessage: INITIAL_TRIP[0],
   avatarUrl: INITIAL_TRIP[1],
+  baselineTrip: INITIAL_TRIP,
 
   purpose: null,
   investmentPct: null,
   currency: null,
   tamanoHuge: false,
 
-  metrosCuadradosStr: "120",
+  metrosCuadradosStr: "125",
   ubicacionSeleccionada: "",
   termSelected: "30",
   tasaCambioMXNPerUSD: 17.05,
 
   pickPurpose: (id) =>
-    set(() => {
-      if (id === "negocio") {
-        return { purpose: id };
+    set((state) => {
+      const [msg, av] = tripFromPurpose(id);
+      const clamped = clampSqmToPurposeBounds(
+        Number.parseFloat(state.metrosCuadradosStr),
+        id,
+      );
+      const sqmStr = String(clamped);
+      const tamanoHuge = clamped > 150;
+
+      if (tamanoHuge) {
+        return {
+          purpose: id,
+          dynamicMessage: COTIZADOR_PANEL_MESSAGES.tamanoGt150,
+          avatarUrl: COTIZADOR_PANEL_AVATARS.tamano,
+          baselineTrip: [msg, av],
+          metrosCuadradosStr: sqmStr,
+          tamanoHuge: true,
+        };
       }
 
       return {
         purpose: id,
-        dynamicMessage: COTIZADOR_PANEL_MESSAGES.purposeLoteOTerreno,
-        avatarUrl: COTIZADOR_PANEL_AVATARS.purposeLote,
+        dynamicMessage: msg,
+        avatarUrl: av,
+        baselineTrip: [msg, av],
+        metrosCuadradosStr: sqmStr,
+        tamanoHuge: false,
       };
     }),
 
-  bumpUbicacion: () =>
-    set({
-      dynamicMessage: COTIZADOR_PANEL_MESSAGES.ubicacionInteract,
-      avatarUrl: COTIZADOR_PANEL_AVATARS.ubicacion,
+  setUbicacionSeleccionada: (ubicacionSeleccionada) =>
+    set(() => {
+      if (ubicacionSeleccionada === "") {
+        return { ubicacionSeleccionada };
+      }
+      const msg = COTIZADOR_PANEL_MESSAGES.ubicacionSeleccionada;
+      const av = COTIZADOR_PANEL_AVATARS.ubicacion;
+      return {
+        ubicacionSeleccionada,
+        dynamicMessage: msg,
+        avatarUrl: av,
+        baselineTrip: [msg, av],
+      };
     }),
-
-  setUbicacionSeleccionada: (ubicacionSeleccionada) => set({ ubicacionSeleccionada }),
 
   pickTerm: (termSelected) => set({ termSelected }),
 
@@ -98,16 +136,18 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set) => ({
         investmentPct: id,
         dynamicMessage: msg,
         avatarUrl: avatar,
+        baselineTrip: [msg, avatar],
       };
     }),
 
   updateDreamSqmRaw: (raw) => {
-    const v = Number.parseFloat(raw);
-    const tamanoHuge = Number.isFinite(v) && v > 150;
+    const v = clampSqmToPurposeBounds(Number.parseFloat(raw), get().purpose);
+    const sqmStr = String(v);
+    const tamanoHuge = v > 150;
 
     if (tamanoHuge) {
       set({
-        metrosCuadradosStr: raw,
+        metrosCuadradosStr: sqmStr,
         tamanoHuge: true,
         dynamicMessage: COTIZADOR_PANEL_MESSAGES.tamanoGt150,
         avatarUrl: COTIZADOR_PANEL_AVATARS.tamano,
@@ -115,27 +155,44 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set) => ({
       return;
     }
 
-    set({ metrosCuadradosStr: raw, tamanoHuge: false });
+    const [bMsg, bAv] = get().baselineTrip;
+    set({
+      metrosCuadradosStr: sqmStr,
+      tamanoHuge: false,
+      dynamicMessage: bMsg,
+      avatarUrl: bAv,
+    });
   },
 
   pickCurrency: (id) =>
-    set(() =>
-      id === "mxn"
-        ? {
-            currency: id,
-            dynamicMessage: COTIZADOR_PANEL_MESSAGES.currencyMxn,
-            avatarUrl: COTIZADOR_PANEL_AVATARS.mxn,
-          }
-        : {
-            currency: id,
-            dynamicMessage: COTIZADOR_PANEL_MESSAGES.currencyUsd,
-            avatarUrl: COTIZADOR_PANEL_AVATARS.usd,
-          },
-    ),
+    set(() => {
+      if (id === "mxn") {
+        const msg = COTIZADOR_PANEL_MESSAGES.currencyMxn;
+        const av = COTIZADOR_PANEL_AVATARS.mxn;
+        return {
+          currency: id,
+          dynamicMessage: msg,
+          avatarUrl: av,
+          baselineTrip: [msg, av],
+        };
+      }
+      const msg = COTIZADOR_PANEL_MESSAGES.currencyUsd;
+      const av = COTIZADOR_PANEL_AVATARS.usd;
+      return {
+        currency: id,
+        dynamicMessage: msg,
+        avatarUrl: av,
+        baselineTrip: [msg, av],
+      };
+    }),
 
   guardianTap: () =>
     set({
       dynamicMessage: COTIZADOR_PANEL_MESSAGES.guardianGreeting,
       avatarUrl: COTIZADOR_PANEL_AVATARS.guardianSaludo,
+      baselineTrip: [
+        COTIZADOR_PANEL_MESSAGES.guardianGreeting,
+        COTIZADOR_PANEL_AVATARS.guardianSaludo,
+      ],
     }),
 }));
