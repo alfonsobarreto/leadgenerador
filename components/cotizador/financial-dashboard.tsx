@@ -81,18 +81,21 @@ export function FinancialDashboard(): JSX.Element {
 
   return (
     <div className="relative isolate shrink-0 pb-3 pt-[max(0.5rem,env(safe-area-inset-top))]">
-      <div className="absolute right-1 top-[max(0.35rem,env(safe-area-inset-top))] z-20 sm:right-2">
-        <LanguageToggle />
-      </div>
+      {/* Mobile-first: texto en columna flexible; toggle + avatar a la derecha sin tapar el mensaje */}
+      <div className="mx-auto grid w-full max-w-xl grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-1 px-1 sm:gap-x-3 sm:px-2">
+        <div className="col-start-1 row-start-1 row-span-2 min-w-0 self-center">
+          <DynamicHeadline text={dynamicMessage} />
+        </div>
 
-      <div className="mx-auto flex h-[5.25rem] max-w-xl items-center gap-3 px-1 pr-[4.5rem] sm:h-[5.75rem] sm:gap-4 sm:px-2 sm:pr-[5rem]">
-        <DynamicHeadline text={dynamicMessage} />
+        <div className="col-start-2 row-start-1 flex justify-end self-start pt-0.5">
+          <LanguageToggle />
+        </div>
 
         <button
           type="button"
           aria-label={`Guardian del sueño: ${guardianLabel}`}
           onClick={guardianTap}
-          className="relative flex size-[4.25rem] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/40 bg-zinc-950/70 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/15 transition-[transform,filter] hover:brightness-110 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[4.75rem] sm:rounded-[1.25rem]"
+          className="relative col-start-2 row-start-2 flex size-[4.25rem] shrink-0 items-center justify-center justify-self-end overflow-hidden rounded-2xl border border-white/40 bg-zinc-950/70 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/15 transition-[transform,filter] hover:brightness-110 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[4.75rem] sm:rounded-[1.25rem]"
         >
           <Image
             src={avatarUrl}
