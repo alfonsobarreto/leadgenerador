@@ -4,65 +4,56 @@ import { ChevronDown, House } from "lucide-react";
 import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import { MesaDeDisenoLogo } from "./mesa-logo";
-import { COTIZADOR_PANEL_MESSAGES } from "@/lib/cotizador-panel-messages";
+import type { InvestmentPctId, PurposeId, TermId, UbicacionId } from "@/lib/cotizador-ui-store";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
 
 const violet = "#8b2cf5";
 
-const PURPOSE_TRIGGERS_MESSAGE = new Set(["lote-habitacional", "terreno"]);
-
-function BoldFieldLabel({ id, children }: { id: string; children: string }): JSX.Element {
+function FieldLabelTiny({ id, children }: { id: string; children: string }): JSX.Element {
   return (
-    <p
-      id={id}
-      className="mb-2 px-px text-[0.95rem] font-bold leading-tight text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.15)]"
-    >
+    <p id={id} className="mb-1 truncate px-px text-[0.72rem] font-bold leading-none text-white/95 drop-shadow-[0_1px_0_rgba(0,0,0,0.14)]">
       {children}
     </p>
   );
 }
 
+function purposeActiveClass(selected: boolean): string {
+  return selected ? "rounded-lg bg-white/12 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)] ring-2 ring-teal-400/95 ring-offset-1 ring-offset-black/55" : "";
+}
+
 function DreamRadioGroup(): JSX.Element {
-  const opts: readonly { id: string; label: string; defaultChecked?: boolean }[] = [
-    { id: "lote-habitacional", label: "Lote habitacional", defaultChecked: true },
+  const opts: readonly { id: PurposeId; label: string }[] = [
+    { id: "lote-habitacional", label: "Lote habitacional" },
     { id: "terreno", label: "Terreno" },
     { id: "negocio", label: "Mi negocio" },
   ];
 
-  const setDynamicMessage = useCotizadorUiStore((s) => s.setDynamicMessage);
-
-  const onPurposeChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    if (!event.target.checked) return;
-    const { value } = event.target;
-    if (PURPOSE_TRIGGERS_MESSAGE.has(value)) {
-      setDynamicMessage(COTIZADOR_PANEL_MESSAGES.purposeLoteOTerreno);
-    }
-  };
+  const purpose = useCotizadorUiStore((s) => s.purpose);
+  const pickPurpose = useCotizadorUiStore((s) => s.pickPurpose);
 
   return (
     <fieldset>
       <legend className="sr-only">Tipo de proyecto</legend>
-      <BoldFieldLabel id="dream-group-label">Tu sueño:</BoldFieldLabel>
+      <FieldLabelTiny id="dream-group-label">Tu sueño:</FieldLabelTiny>
       <div
-        className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-[1.35rem] border border-white/12 bg-black/28 px-3 py-3.5 backdrop-blur-md sm:justify-center sm:gap-x-10"
-        role="group"
+        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 rounded-xl border border-white/12 bg-black/28 px-2 py-1.5 backdrop-blur-md [@media(min-width:360px)]:justify-center [@media(min-width:360px)]:gap-x-5"
         aria-labelledby="dream-group-label"
       >
         {opts.map((opt) => (
           <label
             key={opt.id}
-            className="flex cursor-pointer select-none items-center gap-3 text-[0.9rem] font-semibold tracking-tight text-white"
+            className={`flex cursor-pointer select-none items-center gap-2 px-2 py-0.5 text-[0.72rem] font-semibold tracking-tight text-white transition-[box-shadow] sm:text-[0.78rem] ${purposeActiveClass(purpose === opt.id)}`}
           >
             <input
               type="radio"
               name="purpose"
               value={opt.id}
-              defaultChecked={opt.defaultChecked}
-              onChange={onPurposeChange}
+              checked={purpose === opt.id}
+              onChange={() => pickPurpose(opt.id)}
               style={{ accentColor: violet }}
-              className="size-5 shrink-0 border-[1.5px] border-white/90 bg-white/15 shadow-inner shadow-black/25"
+              className="size-4 shrink-0 border border-white/90 bg-white/15 shadow-inner shadow-black/25 sm:size-[1.05rem]"
             />
-            {opt.label}
+            <span className="max-[320px]:max-w-[92px] max-[320px]:leading-tight">{opt.label}</span>
           </label>
         ))}
       </div>
@@ -70,180 +61,143 @@ function DreamRadioGroup(): JSX.Element {
   );
 }
 
-/** Pills plazos: borde blanco; selección violeta sólido. */
-function OutlinePills({
-  name,
-  labelledById,
-  items,
-}: {
-  name: string;
-  labelledById: string;
-  items: readonly { id: string; label: string; defaultChecked?: boolean }[];
-}): JSX.Element {
+function TermPlazoRadioGroup(): JSX.Element {
+  const termSelected = useCotizadorUiStore((s) => s.termSelected);
+  const pickTerm = useCotizadorUiStore((s) => s.pickTerm);
+
+  const items: readonly { id: TermId; label: string }[] = [
+    { id: "30", label: "30 años" },
+    { id: "20", label: "20 años" },
+    { id: "spot", label: "Al contado" },
+  ];
+
   return (
-    <div
-      className="flex flex-wrap justify-center gap-2 sm:justify-start"
-      role="group"
-      aria-labelledby={labelledById}
-    >
-      {items.map((it) => (
-        <label
-          key={it.id}
-          className="relative cursor-pointer whitespace-nowrap rounded-full border-[1.85px] border-white bg-transparent px-6 py-2.5 text-sm font-semibold tracking-tight transition-[background-color,border-color,box-shadow,color] has-[:checked]:border-transparent has-[:checked]:bg-[#8b2cf5] has-[:checked]:text-white has-[:checked]:shadow-[0_14px_32px_-8px_rgba(139,44,245,0.55)]"
-        >
-          <input
-            type="radio"
-            name={name}
-            value={it.id}
-            defaultChecked={it.defaultChecked}
-            className="absolute inset-0 cursor-pointer opacity-0"
-          />
-          <span className="pointer-events-none text-white">{it.label}</span>
-        </label>
-      ))}
-    </div>
+    <fieldset>
+      <FieldLabelTiny id="plazo-label-inline">Plazos:</FieldLabelTiny>
+      <div className="flex flex-wrap gap-1.5" aria-labelledby="plazo-label-inline">
+        {items.map((it) => {
+          const sel = termSelected === it.id;
+          return (
+            <label
+              key={it.id}
+              className={`relative cursor-pointer whitespace-nowrap rounded-full border-[1.5px] px-3 py-1.5 text-[0.68rem] font-semibold tracking-tight transition-colors sm:px-[0.875rem] sm:text-xs ${
+                sel
+                  ? "border-transparent bg-[#8b2cf5] text-white shadow-[0_12px_28px_-10px_rgba(139,44,245,0.55)]"
+                  : "border-white bg-transparent text-white hover:bg-white/5"
+              }`}
+            >
+              <input
+                type="radio"
+                name="term"
+                value={it.id}
+                checked={sel}
+                onChange={() => pickTerm(it.id)}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+              <span className="pointer-events-none">{it.label}</span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }
 
-function InitialPctBoxes(): JSX.Element {
+function pctWrapClass(active: boolean, id: InvestmentPctId): string {
+  if (!active)
+    return "border-white/65 bg-transparent hover:bg-white/10";
+
+  if (id === "10") {
+    return "border-transparent bg-white text-zinc-900 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] ring-2 ring-yellow-300/90 ring-offset-1 ring-offset-black/60";
+  }
+  return "border-[#e9d5ff] bg-white/17 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)] ring-2 ring-purple-400/95 ring-offset-1 ring-offset-black/65";
+}
+
+function InvestmentPctBoxes(): JSX.Element {
   const items = [
-    {
-      id: "10",
-      label: "10%",
-      message: COTIZADOR_PANEL_MESSAGES.enganche10,
-      defaultChecked: true,
-      mockSolid: true as const,
-    },
-    { id: "5", label: "5%", message: COTIZADOR_PANEL_MESSAGES.enganche5, mockSolid: false as const },
-    { id: "1", label: "1%", message: COTIZADOR_PANEL_MESSAGES.enganche1, mockSolid: false as const },
-  ] satisfies readonly {
-    id: string;
-    label: string;
-    message: string;
-    defaultChecked?: boolean;
-    mockSolid: boolean;
-  }[];
+    { id: "10" as InvestmentPctId, label: "10%" },
+    { id: "5" as InvestmentPctId, label: "5%" },
+    { id: "1" as InvestmentPctId, label: "1%" },
+  ];
 
-  const setDynamicMessage = useCotizadorUiStore((s) => s.setDynamicMessage);
-
-  const onPctChange =
-    (message: string) =>
-    (event: ChangeEvent<HTMLInputElement>): void => {
-      if (!event.target.checked) return;
-      setDynamicMessage(message);
-    };
+  const investmentPct = useCotizadorUiStore((s) => s.investmentPct);
+  const pickInvestmentPct = useCotizadorUiStore((s) => s.pickInvestmentPct);
 
   return (
     <fieldset>
       <legend className="sr-only">Porcentaje de inversión inicial</legend>
-      <div className="mb-3 flex justify-end px-px">
-        <span
-          id="pct-label-inline"
-          className="text-[0.95rem] font-bold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.15)]"
-        >
+      <div className="mb-1.5 flex justify-end px-px">
+        <span id="pct-label-inline" className="text-[0.74rem] font-bold leading-none text-white sm:text-[0.8rem]">
           Inversión inicial
         </span>
       </div>
-      <div role="group" aria-labelledby="pct-label-inline" className="flex flex-wrap items-stretch gap-3">
+      <div role="group" aria-labelledby="pct-label-inline" className="flex flex-wrap gap-2">
         {items.map((it) => (
           <label
             key={it.id}
-            className={`relative flex min-h-[3.125rem] min-w-[5.125rem] flex-1 cursor-pointer items-center justify-center rounded-xl border-[1.85px] border-white/90 px-3 text-[0.94rem] font-extrabold text-white hover:bg-white/10 ${
-              it.mockSolid
-                ? "has-[:checked]:border-transparent has-[:checked]:bg-white has-[:checked]:shadow-[0_14px_32px_-8px_rgba(255,255,255,0.22)] has-[:checked]:[&>span]:text-zinc-900"
-                : "bg-transparent hover:bg-white/10 has-[:checked]:border-[#ddd6fe] has-[:checked]:bg-white/14 has-[:checked]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)] has-[:checked]:[&>span]:text-white"
-            }`}
+            className={`relative flex min-h-[2.35rem] min-w-[4.25rem] flex-1 cursor-pointer items-center justify-center rounded-lg border-[1.5px] px-2 text-[0.78rem] font-extrabold transition-colors sm:min-h-10 sm:text-[0.82rem] ${pctWrapClass(investmentPct === it.id, it.id)}`}
           >
             <input
               type="radio"
               name="pct-box"
               value={it.id}
-              defaultChecked={it.defaultChecked}
-              onChange={onPctChange(it.message)}
+              checked={investmentPct === it.id}
+              onChange={() => pickInvestmentPct(it.id)}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
-            <span className="pointer-events-none relative z-[1]">{it.label}</span>
+            <span
+              className={`pointer-events-none relative z-[1] ${investmentPct === it.id && it.id !== "10" ? "text-white" : investmentPct === it.id && it.id === "10" ? "text-zinc-950" : "text-white"}`}
+            >
+              {it.label}
+            </span>
           </label>
         ))}
-      </div>
-    </fieldset>
-  );
-}
-
-function ExchangeSegment(): JSX.Element {
-  const setDynamicMessage = useCotizadorUiStore((s) => s.setDynamicMessage);
-
-  const onCurrencyChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    if (!event.target.checked) return;
-    const { value } = event.target;
-    if (value === "mxn") setDynamicMessage(COTIZADOR_PANEL_MESSAGES.currencyMxn);
-    if (value === "usd") setDynamicMessage(COTIZADOR_PANEL_MESSAGES.currencyUsd);
-  };
-
-  return (
-    <fieldset className="w-full">
-      <legend className="mb-3 block px-px text-[0.95rem] font-bold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.15)]">
-        Tipo de cambio
-      </legend>
-      <div className="flex gap-4" role="group">
-        <label className="relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.85px] border-white py-3 text-[0.78rem] font-extrabold uppercase tracking-[0.18em] transition-[background,color,border-color,box-shadow] has-[:checked]:border-transparent has-[:checked]:bg-[#8b2cf5] has-[:checked]:shadow-[0_14px_32px_-8px_rgba(139,44,245,0.52)]">
-          <input
-            type="radio"
-            name="currency"
-            value="usd"
-            defaultChecked
-            onChange={onCurrencyChange}
-            className="absolute inset-0 cursor-pointer opacity-0"
-          />
-          <span className="pointer-events-none text-white">USD</span>
-        </label>
-        <label className="relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.85px] border-white py-3 text-[0.78rem] font-extrabold uppercase tracking-[0.18em] transition-[background,color,border-color,box-shadow] has-[:checked]:border-transparent has-[:checked]:bg-[#8b2cf5] has-[:checked]:shadow-[0_14px_32px_-8px_rgba(139,44,245,0.52)]">
-          <input
-            type="radio"
-            name="currency"
-            value="mxn"
-            onChange={onCurrencyChange}
-            className="absolute inset-0 cursor-pointer opacity-0"
-          />
-          <span className="pointer-events-none text-white">MXN</span>
-        </label>
       </div>
     </fieldset>
   );
 }
 
 function UbicacionField(): JSX.Element {
-  const setDynamicMessage = useCotizadorUiStore((s) => s.setDynamicMessage);
+  const bumpUbicacion = useCotizadorUiStore((s) => s.bumpUbicacion);
+  const ubicacionSeleccionada = useCotizadorUiStore((s) => s.ubicacionSeleccionada);
+  const setUbicacionSeleccionada = useCotizadorUiStore((s) => s.setUbicacionSeleccionada);
 
-  const onUbicacionInteract = (): void =>
-    setDynamicMessage(COTIZADOR_PANEL_MESSAGES.ubicacionInteract);
+  const onInteract = (): void => {
+    bumpUbicacion();
+  };
+
+  const onSelectChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+    const next = event.target.value as UbicacionId;
+    setUbicacionSeleccionada(next);
+    bumpUbicacion();
+  };
 
   return (
     <div>
-      <BoldFieldLabel id="property-select-label">Ubicación del desarrollo</BoldFieldLabel>
+      <FieldLabelTiny id="property-select-label">Ubicación</FieldLabelTiny>
       <div className="relative">
         <select
           aria-labelledby="property-select-label"
           id="property-select"
-          defaultValue=""
-          onFocus={onUbicacionInteract}
-          onChange={onUbicacionInteract}
-          onClick={onUbicacionInteract}
-          className="h-[3.6rem] w-full appearance-none rounded-[1rem] border-[1.85px] border-white bg-black/35 px-5 pr-14 text-[0.88rem] font-semibold tracking-tight text-white outline-none backdrop-blur-md hover:bg-black/42 focus-visible:ring-2 focus-visible:ring-[#ddd6fe]"
+          value={ubicacionSeleccionada}
+          onFocus={onInteract}
+          onChange={onSelectChange}
+          onClick={onInteract}
+          className="h-11 w-full appearance-none rounded-xl border-[1.5px] border-white bg-black/35 px-3 pr-12 text-[0.72rem] font-semibold tracking-tight text-white outline-none backdrop-blur-md hover:bg-black/42 focus-visible:ring-2 focus-visible:ring-[#ddd6fe] sm:h-11 sm:text-[0.78rem]"
         >
           <option value="" disabled className="text-zinc-900">
-            Selecciona la propiedad de tus sueños
+            Selecciona la propiedad…
           </option>
           <option value="qro" className="text-zinc-900">
-            Querétaro · Desarrollo Centro
+            Querétaro · Centro
           </option>
           <option value="cancun" className="text-zinc-900">
-            Cancún · Zona Esmeralda
+            Cancún · Esmeralda
           </option>
         </select>
         <ChevronDown
           aria-hidden
-          className="pointer-events-none absolute right-4 top-1/2 size-6 -translate-y-1/2 text-white/90"
+          className="pointer-events-none absolute right-3 top-1/2 size-[1.1rem] -translate-y-1/2 text-white/90 sm:size-[1.2rem]"
           strokeWidth={3}
         />
       </div>
@@ -251,80 +205,109 @@ function UbicacionField(): JSX.Element {
   );
 }
 
-function DreamSizeField(): JSX.Element {
-  const setDynamicMessage = useCotizadorUiStore((s) => s.setDynamicMessage);
+function currencyActive(sel: boolean): string {
+  return sel
+    ? "border-transparent bg-[#8b2cf5] shadow-[0_12px_32px_-8px_rgba(139,44,245,0.62)] ring-2 ring-yellow-400/95 ring-offset-1 ring-offset-black/70"
+    : "border-white";
+}
 
-  const onAreaUpdate = (event: ChangeEvent<HTMLInputElement>): void => {
-    const v = Number.parseFloat(event.target.value);
-    if (Number.isFinite(v) && v > 150) {
-      setDynamicMessage(COTIZADOR_PANEL_MESSAGES.tamanoGt150);
-    }
+function DreamSizeCurrencyRow(): JSX.Element {
+  const tamanoHuge = useCotizadorUiStore((s) => s.tamanoHuge);
+  const currency = useCotizadorUiStore((s) => s.currency);
+  const pickCurrency = useCotizadorUiStore((s) => s.pickCurrency);
+  const updateDreamSqmRaw = useCotizadorUiStore((s) => s.updateDreamSqmRaw);
+  const metrosCuadradosStr = useCotizadorUiStore((s) => s.metrosCuadradosStr);
+
+  const syncSqm = (event: ChangeEvent<HTMLInputElement>): void => {
+    updateDreamSqmRaw(event.target.value);
   };
 
   return (
-    <div>
-      <BoldFieldLabel id="dream-size-label">Tamaño de tu sueño</BoldFieldLabel>
-      <div className="relative mt-3">
-        <span className="pointer-events-none absolute -top-3 left-[2.875rem] z-10 whitespace-nowrap bg-gradient-to-r from-purple-950/92 via-purple-950/74 to-purple-950/92 px-2 pb-px text-[0.6875rem] font-extrabold uppercase tracking-[0.16em] text-white shadow-[0_1px_14px_rgba(0,0,0,0.35)]">
-          Cuéntame tus m²...
-        </span>
-        <div className="relative flex items-center rounded-[1.15rem] border-[1.85px] border-white bg-black/38 px-3 pb-3 pt-9 backdrop-blur-md focus-within:ring-2 focus-within:ring-[#ddd6fe]">
-          <House
-            aria-hidden
-            className="mx-2 size-6 shrink-0 text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.35)]"
-            strokeWidth={2.75}
-          />
-          <input
-            id="dream-size-input"
-            aria-labelledby="dream-size-label"
-            aria-describedby="dream-size-hint"
-            placeholder="Ej. 120"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step={1}
-            defaultValue={120}
-            onChange={onAreaUpdate}
-            onFocus={onAreaUpdate}
-            className="w-full bg-transparent pb-px text-[1.05rem] font-bold tabular-nums text-white outline-none placeholder:text-white/55"
-          />
+    <div className="grid grid-cols-2 gap-x-2 gap-y-2 sm:gap-x-2.5">
+      <div className="min-w-0">
+        <FieldLabelTiny id="dream-size-label">Tamaño de tu sueño</FieldLabelTiny>
+        <div className="relative mt-1">
+          <span className="pointer-events-none absolute -top-2 left-[1.875rem] z-10 whitespace-nowrap bg-gradient-to-r from-purple-950/92 via-purple-950/74 to-purple-950/92 px-1 pb-px text-[0.5625rem] font-extrabold uppercase tracking-[0.12em] text-white shadow-[0_1px_10px_rgba(0,0,0,0.35)] sm:left-[2.125rem] sm:text-[0.6rem]">
+            m²…
+          </span>
+          <div
+            className={`relative flex items-center rounded-lg border-[1.5px] border-white bg-black/38 px-1.5 pb-1 pt-7 backdrop-blur-md transition-shadow focus-within:ring-[1px] focus-within:ring-[#ddd6fe] ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/92 ring-offset-1 ring-offset-black/70" : ""}`}
+          >
+            <House
+              aria-hidden
+              className="mx-1 size-[1.0625rem] shrink-0 text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.35)] sm:size-[1.125rem]"
+              strokeWidth={2.75}
+            />
+            <input
+              id="dream-size-input"
+              aria-labelledby="dream-size-label"
+              aria-describedby="dream-size-hint"
+              placeholder=""
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step={1}
+              value={metrosCuadradosStr}
+              onChange={syncSqm}
+              onFocus={(e) => updateDreamSqmRaw(e.target.value)}
+              className="w-full bg-transparent pb-px text-[0.84rem] font-bold tabular-nums text-white outline-none placeholder:text-white/45 sm:text-[0.9rem]"
+            />
+          </div>
+          <span id="dream-size-hint" className="sr-only">
+            Metros cuadrados estimados para la cotización.
+          </span>
         </div>
-        <span id="dream-size-hint" className="sr-only">
-          Metros cuadrados estimados para la cotización.
-        </span>
       </div>
+
+      <fieldset className="min-w-0">
+        <legend className="mb-1 block px-px text-[0.72rem] font-bold leading-none text-white sm:text-[0.78rem]">
+          Tipo de cambio
+        </legend>
+        <div className="flex flex-col justify-center gap-1 py-px">
+          <label
+            className={`relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.5px] py-2 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] transition-[background,color,border-color,box-shadow] sm:text-[0.66rem] sm:tracking-[0.17em] ${currencyActive(currency === "usd")}`}
+          >
+            <input
+              type="radio"
+              name="currency"
+              value="usd"
+              checked={currency === "usd"}
+              onChange={() => pickCurrency("usd")}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            />
+            <span className="pointer-events-none text-white">USD</span>
+          </label>
+          <label
+            className={`relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.5px] py-2 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] transition-[background,color,border-color,box-shadow] sm:text-[0.66rem] sm:tracking-[0.17em] ${currencyActive(currency === "mxn")}`}
+          >
+            <input
+              type="radio"
+              name="currency"
+              value="mxn"
+              checked={currency === "mxn"}
+              onChange={() => pickCurrency("mxn")}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            />
+            <span className="pointer-events-none text-white">MXN</span>
+          </label>
+        </div>
+      </fieldset>
     </div>
   );
 }
 
 export function DesignMesa(): JSX.Element {
   return (
-    <section className="mx-auto max-w-xl px-4 pb-44" aria-label="Parámetros de cotización">
-      <MesaDeDisenoLogo />
+    <section className="flex min-h-0 flex-1 flex-col overflow-hidden" aria-label="Parámetros de cotización">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain [-ms-overflow-style:none] [scrollbar-width:thin] sm:gap-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5">
+        <MesaDeDisenoLogo />
 
-      <div className="space-y-8 pt-2">
-        <DreamRadioGroup />
-
-        <UbicacionField />
-
-        <div>
-          <BoldFieldLabel id="plazo-label-inline">Plazos:</BoldFieldLabel>
-          <OutlinePills
-            name="term"
-            labelledById="plazo-label-inline"
-            items={[
-              { id: "30", label: "30 años", defaultChecked: true },
-              { id: "20", label: "20 años" },
-              { id: "spot", label: "Al contado" },
-            ]}
-          />
-        </div>
-
-        <InitialPctBoxes />
-
-        <div className="grid gap-9">
-          <DreamSizeField />
-          <ExchangeSegment />
+        <div className="flex shrink-0 flex-col gap-y-2 sm:gap-y-2.5">
+          <DreamRadioGroup />
+          <UbicacionField />
+          <TermPlazoRadioGroup />
+          <InvestmentPctBoxes />
+          <DreamSizeCurrencyRow />
         </div>
       </div>
     </section>

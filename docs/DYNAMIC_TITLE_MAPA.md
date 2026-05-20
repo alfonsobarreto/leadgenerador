@@ -1,8 +1,10 @@
 # Panel superior — título dinámico (`dynamicMessage`)
 
-Este documento describe el mapa de interacciones para el texto del **panel superior** (junto al avatar), implementado con **Zustand** (`dynamicMessage` + `setDynamicMessage`).
+Este documento describe el mapa de interacciones para **texto**, **avatar** y **estado activo** de la Mesa de diseño.
 
-La última interacción válida **sobrescribe** el mensaje anterior (no hay cola de mensajes).
+Se implementa en **Zustand** (`lib/cotizador-ui-store.ts`): cuando aplica la regla, se actualizan juntos **`dynamicMessage`**, **`avatarUrl`** y el control correspondiente (`purpose`, `investmentPct`, `currency`, o `tamanoHuge`).
+
+La última acción que debe cambiar texto+avatar **los sobrescribe** (no hay cola de mensajes).
 
 ---
 
@@ -25,9 +27,11 @@ La última interacción válida **sobrescribe** el mensaje anterior (no hay cola
 
 ## Implementación técnica
 
-- **Store:** `lib/cotizador-ui-store.ts` — estado `dynamicMessage`.
-- **Constantes literales:** `lib/cotizador-panel-messages.ts` — evita typos y documenta en código.
-- **UI:** `financial-dashboard.tsx` (título + clic en avatar), `design-mesa.tsx` (formulario) — todos **Client Components** donde aplica.
+- **Store:** `lib/cotizador-ui-store.ts` — `dynamicMessage`, `avatarUrl`, `pickPurpose`, `bumpUbicacion`, etc.
+- **Mensajes + URLs placeholder de avatar:** `lib/cotizador-panel-messages.ts` (`COTIZADOR_PANEL_MESSAGES`, `COTIZADOR_PANEL_AVATARS`).
+- **UI:** `financial-dashboard.tsx` (título + imagen del Guardian), `design-mesa.tsx` (controles controlados con resalte persistente).
+
+Nota: **“Mi negocio”** solo fija `purpose` para el resaltado del radio; no altera mensaje ni avatar hasta otra regla con triada completa.
 
 ## Criterios de aceptación manual
 
