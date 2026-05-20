@@ -65,6 +65,20 @@ function DreamRadioGroup(): JSX.Element {
   );
 }
 
+const termPillClass = (sel: boolean): string =>
+  `relative flex min-h-[1.85rem] cursor-pointer items-center justify-center whitespace-nowrap rounded-full border-[1.5px] px-2 py-1 text-[0.6rem] font-semibold leading-none tracking-tight transition-colors sm:px-2.5 sm:text-[0.64rem] ${
+    sel
+      ? "border-transparent bg-[#8b2cf5] text-white shadow-[0_8px_20px_-10px_rgba(139,44,245,0.55)]"
+      : "border-white/90 bg-transparent text-white hover:bg-white/5"
+  }`;
+
+const currencyPillClass = (sel: boolean): string =>
+  `relative flex min-h-[1.85rem] min-w-[2.65rem] flex-1 cursor-pointer items-center justify-center rounded-full border-[1.5px] px-2 py-1 text-[0.6rem] font-extrabold uppercase leading-none tracking-[0.12em] transition-[background,color,border-color,box-shadow] sm:text-[0.64rem] ${
+    sel
+      ? "border-transparent bg-[#8b2cf5] text-white shadow-[0_8px_20px_-10px_rgba(139,44,245,0.55)] ring-1 ring-yellow-400/80"
+      : "border-white/90 bg-transparent text-white hover:bg-white/5"
+  }`;
+
 function TermPlazoRadioGroup(): JSX.Element {
   const t = useTranslation();
   const termSelected = useCotizadorUiStore((s) => s.termSelected);
@@ -77,19 +91,15 @@ function TermPlazoRadioGroup(): JSX.Element {
   ];
 
   return (
-    <fieldset>
+    <fieldset className="min-w-0">
       <FieldLabelTiny id="plazo-label-inline">{t("terms")}</FieldLabelTiny>
-      <div className="flex flex-wrap gap-1.5" aria-labelledby="plazo-label-inline">
+      <div className="flex flex-wrap gap-1" aria-labelledby="plazo-label-inline">
         {items.map((it) => {
           const sel = termSelected === it.id;
           return (
             <label
               key={it.id}
-              className={`relative cursor-pointer whitespace-nowrap rounded-full border-[1.5px] px-3 py-1.5 text-[0.68rem] font-semibold tracking-tight transition-colors sm:px-[0.875rem] sm:text-xs ${
-                sel
-                  ? "border-transparent bg-[#8b2cf5] text-white shadow-[0_12px_28px_-10px_rgba(139,44,245,0.55)]"
-                  : "border-white bg-transparent text-white hover:bg-white/5"
-              }`}
+              className={termPillClass(sel)}
             >
               <input
                 type="radio"
@@ -132,11 +142,7 @@ function InvestmentPctBoxes(): JSX.Element {
   return (
     <fieldset>
       <legend className="sr-only">Porcentaje de inversión inicial</legend>
-      <div className="mb-1.5 flex justify-end px-px">
-        <span id="pct-label-inline" className="text-[0.74rem] font-bold leading-none text-white sm:text-[0.8rem]">
-          {t("initialInvestment")}
-        </span>
-      </div>
+      <FieldLabelTiny id="pct-label-inline">{t("initialInvestment")}</FieldLabelTiny>
       <div role="group" aria-labelledby="pct-label-inline" className="flex flex-wrap gap-2">
         {items.map((it) => (
           <label
@@ -192,9 +198,9 @@ function DreamSizeSlider(): JSX.Element {
 
   return (
     <div
-      className={`rounded-xl border border-white/12 bg-black/28 px-2.5 pt-2.5 pb-2 backdrop-blur-md sm:px-3 sm:pb-2 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/75 ring-offset-1 ring-offset-black/55" : ""}`}
+      className={`rounded-xl border border-white/12 bg-black/28 px-2.5 pt-1.5 pb-1 backdrop-blur-md sm:px-3 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/75 ring-offset-1 ring-offset-black/55" : ""}`}
     >
-      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+      <div className="mb-1 flex items-baseline justify-between gap-2">
         <span
           id="dream-size-slider-label"
           className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white/90 sm:text-[0.66rem]"
@@ -209,7 +215,7 @@ function DreamSizeSlider(): JSX.Element {
         </span>
       </div>
 
-      <div className="px-0.5 pt-1 pb-1">
+      <div className="px-0.5">
         <DreamSizeSliderField
           min={min}
           max={max}
@@ -269,51 +275,49 @@ function UbicacionField(): JSX.Element {
   );
 }
 
-function currencyActive(sel: boolean): string {
-  return sel
-    ? "border-transparent bg-[#8b2cf5] shadow-[0_12px_32px_-8px_rgba(139,44,245,0.62)] ring-2 ring-yellow-400/95 ring-offset-1 ring-offset-black/70"
-    : "border-white";
-}
-
-function CurrencyRow(): JSX.Element {
+function CurrencyInline(): JSX.Element {
   const t = useTranslation();
   const currency = useCotizadorUiStore((s) => s.currency);
   const pickCurrency = useCotizadorUiStore((s) => s.pickCurrency);
 
   return (
     <fieldset className="min-w-0">
-      <legend className="mb-1 block px-px text-[0.72rem] font-bold leading-none text-white sm:text-[0.78rem]">
-        {t("currency")}
-      </legend>
-      <div className="grid grid-cols-2 gap-2">
-          <label
-            className={`relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.5px] py-2 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] transition-[background,color,border-color,box-shadow] sm:text-[0.66rem] sm:tracking-[0.17em] ${currencyActive(currency === "usd")}`}
-          >
-            <input
-              type="radio"
-              name="currency"
-              value="usd"
-              checked={currency === "usd"}
-              onChange={() => pickCurrency("usd")}
-              className="absolute inset-0 cursor-pointer opacity-0"
-            />
-            <span className="pointer-events-none text-white">USD</span>
-          </label>
-          <label
-            className={`relative flex flex-1 cursor-pointer items-center justify-center rounded-full border-[1.5px] py-2 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] transition-[background,color,border-color,box-shadow] sm:text-[0.66rem] sm:tracking-[0.17em] ${currencyActive(currency === "mxn")}`}
-          >
-            <input
-              type="radio"
-              name="currency"
-              value="mxn"
-              checked={currency === "mxn"}
-              onChange={() => pickCurrency("mxn")}
-              className="absolute inset-0 cursor-pointer opacity-0"
-            />
-            <span className="pointer-events-none text-white">MXN</span>
-          </label>
+      <FieldLabelTiny id="currency-label-inline">{t("currency")}</FieldLabelTiny>
+      <div className="flex gap-1" aria-labelledby="currency-label-inline">
+        <label className={currencyPillClass(currency === "usd")}>
+          <input
+            type="radio"
+            name="currency"
+            value="usd"
+            checked={currency === "usd"}
+            onChange={() => pickCurrency("usd")}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          />
+          <span className="pointer-events-none">USD</span>
+        </label>
+        <label className={currencyPillClass(currency === "mxn")}>
+          <input
+            type="radio"
+            name="currency"
+            value="mxn"
+            checked={currency === "mxn"}
+            onChange={() => pickCurrency("mxn")}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          />
+          <span className="pointer-events-none">MXN</span>
+        </label>
       </div>
     </fieldset>
+  );
+}
+
+/** Plazos y tipo de cambio en la misma fila, misma altura visual. */
+function PlazosYCurrencyRow(): JSX.Element {
+  return (
+    <div className="grid grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] items-end gap-x-2 gap-y-0 sm:gap-x-2.5">
+      <TermPlazoRadioGroup />
+      <CurrencyInline />
+    </div>
   );
 }
 
@@ -323,11 +327,10 @@ export function DesignMesa(): JSX.Element {
       <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain [-ms-overflow-style:none] [scrollbar-width:thin] sm:gap-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5">
         <div className="flex shrink-0 flex-col gap-y-2 sm:gap-y-2.5">
           <DreamRadioGroup />
-          <UbicacionField />
           <DreamSizeSlider />
-          <TermPlazoRadioGroup />
+          <UbicacionField />
           <InvestmentPctBoxes />
-          <CurrencyRow />
+          <PlazosYCurrencyRow />
         </div>
       </div>
     </section>

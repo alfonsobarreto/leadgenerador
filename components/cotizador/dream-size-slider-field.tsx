@@ -94,7 +94,7 @@ export function DreamSizeSliderField({
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onKeyDown={onKeyDown}
-      className="dream-size-track-zone relative flex min-h-[3rem] w-full cursor-pointer touch-none select-none items-center py-2 outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50 sm:min-h-[3.25rem]"
+      className="dream-size-track-zone relative flex w-full cursor-pointer touch-none select-none items-center py-1 outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
     >
       {/* Pista visual (delgada) centrada en zona táctil amplia */}
       <div className="pointer-events-none relative h-[0.3rem] w-full rounded-full bg-white/20">
