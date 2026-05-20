@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { clampSqmToPurposeBounds } from "./dream-sqm-bounds";
-import { COTIZADOR_PANEL_AVATARS, COTIZADOR_PANEL_MESSAGES } from "./cotizador-panel-messages";
+import type { TripTuple } from "@/lib/i18n/panel-trip";
 import {
-  panelTripForSqmChange,
-  terrenoSqmHighlight,
-  tripFromTerrenoMetros,
-} from "./terreno-sqm-panel";
+  enganchePanelKey,
+  getPanelTrip,
+  purposeToPanelKey,
+  terrenoSqmPanelKey,
+} from "@/lib/i18n/panel-trip";
+import type { LanguageId, PanelMessageKey } from "@/lib/i18n/types";
+import { panelTripForSqmChange, terrenoSqmHighlight } from "./terreno-sqm-panel";
 
 export type PurposeId = "lote-habitacional" | "terreno" | "negocio";
 
@@ -17,12 +20,37 @@ export type UbicacionId = "" | "qro" | "cancun";
 
 export type TermId = "30" | "20" | "spot";
 
-type TripTuple = readonly [message: string, avatarUrl: string];
-
-export type CotizadorUiState = {
+type PanelApply = {
+  panelMessageKey: PanelMessageKey;
+  baselinePanelKey: PanelMessageKey;
   dynamicMessage: string;
   avatarUrl: string;
-  /** Último par texto+avatar fijado por acciones distintas al slider de m² (ubicación, enganche, divisa, etc.). */
+  baselineTrip: TripTuple;
+};
+
+function applyPanelKeys(
+  language: LanguageId,
+  panelMessageKey: PanelMessageKey,
+  baselinePanelKey: PanelMessageKey,
+): PanelApply {
+  const [msg, av] = getPanelTrip(panelMessageKey, language);
+  const baselineTrip = getPanelTrip(baselinePanelKey, language);
+  return {
+    panelMessageKey,
+    baselinePanelKey,
+    dynamicMessage: msg,
+    avatarUrl: av,
+    baselineTrip,
+  };
+}
+
+export type CotizadorUiState = {
+  language: LanguageId;
+  panelMessageKey: PanelMessageKey;
+  baselinePanelKey: PanelMessageKey;
+
+  dynamicMessage: string;
+  avatarUrl: string;
   baselineTrip: TripTuple;
 
   purpose: PurposeId | null;
@@ -31,17 +59,14 @@ export type CotizadorUiState = {
 
   tamanoHuge: boolean;
 
-  /** Cadena editable en el campo m² (vacío válido temporalmente). */
   metrosCuadradosStr: string;
   ubicacionSeleccionada: UbicacionId;
-  /** Plazo financiero o contado (“spot”). */
   termSelected: TermId;
-  /** MXN por cada 1 USD. */
   tasaCambioMXNPerUSD: number;
 
+  setLanguage: (language: LanguageId) => void;
   pickPurpose: (id: PurposeId) => void;
   pickInvestmentPct: (id: InvestmentPctId) => void;
-  /** Actualiza m²; MSI 36/48 solo si el sueño activo es Mi Terreno. */
   updateDreamSqmRaw: (raw: string) => void;
   pickCurrency: (id: CurrencyId) => void;
   guardianTap: () => void;
@@ -50,25 +75,17 @@ export type CotizadorUiState = {
   pickTerm: (term: TermId) => void;
 };
 
-const INITIAL_TRIP: TripTuple = [
-  COTIZADOR_PANEL_MESSAGES.initial,
-  COTIZADOR_PANEL_AVATARS.initial,
-];
+const initialPanelKey: PanelMessageKey = "initial";
 
-function tripFromPurpose(id: PurposeId): TripTuple {
-  if (id === "lote-habitacional") {
-    return [COTIZADOR_PANEL_MESSAGES.purposeCasa, COTIZADOR_PANEL_AVATARS.casa];
-  }
-  if (id === "terreno") {
-    return [COTIZADOR_PANEL_MESSAGES.purposeTerreno, COTIZADOR_PANEL_AVATARS.terreno];
-  }
-  return [COTIZADOR_PANEL_MESSAGES.purposeNegocio, COTIZADOR_PANEL_AVATARS.negocio];
-}
+const boot = applyPanelKeys("es", initialPanelKey, initialPanelKey);
 
 export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
-  dynamicMessage: INITIAL_TRIP[0],
-  avatarUrl: INITIAL_TRIP[1],
-  baselineTrip: INITIAL_TRIP,
+  language: "es",
+  panelMessageKey: initialPanelKey,
+  baselinePanelKey: initialPanelKey,
+  dynamicMessage: boot.dynamicMessage,
+  avatarUrl: boot.avatarUrl,
+  baselineTrip: boot.baselineTrip,
 
   purpose: null,
   investmentPct: null,
@@ -80,84 +97,79 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
   termSelected: "30",
   tasaCambioMXNPerUSD: 17.05,
 
+  setLanguage: (language) =>
+    set((state) => applyPanelKeys(language, state.panelMessageKey, state.baselinePanelKey)),
+
   pickPurpose: (id) =>
     set((state) => {
-      const [categoryMsg, categoryAv] = tripFromPurpose(id);
       const clamped = clampSqmToPurposeBounds(
         Number.parseFloat(state.metrosCuadradosStr),
         id,
       );
       const sqmStr = String(clamped);
+      const categoryKey = purposeToPanelKey(id);
 
       if (id === "terreno") {
-        const [msg, av] = tripFromTerrenoMetros(clamped);
+        const displayKey = terrenoSqmPanelKey(clamped);
         return {
           purpose: id,
-          dynamicMessage: msg,
-          avatarUrl: av,
-          baselineTrip: [categoryMsg, categoryAv],
           metrosCuadradosStr: sqmStr,
           tamanoHuge: terrenoSqmHighlight(clamped, id),
+          ...applyPanelKeys(state.language, displayKey, categoryKey),
         };
       }
 
       return {
         purpose: id,
-        dynamicMessage: categoryMsg,
-        avatarUrl: categoryAv,
-        baselineTrip: [categoryMsg, categoryAv],
         metrosCuadradosStr: sqmStr,
         tamanoHuge: false,
+        ...applyPanelKeys(state.language, categoryKey, categoryKey),
       };
     }),
 
   setUbicacionSeleccionada: (ubicacionSeleccionada) =>
-    set(() => {
+    set((state) => {
       if (ubicacionSeleccionada === "") {
         return { ubicacionSeleccionada };
       }
-      const msg = COTIZADOR_PANEL_MESSAGES.ubicacionSeleccionada;
-      const av = COTIZADOR_PANEL_AVATARS.ubicacion;
       return {
         ubicacionSeleccionada,
-        dynamicMessage: msg,
-        avatarUrl: av,
-        baselineTrip: [msg, av],
+        ...applyPanelKeys(state.language, "ubicacion", "ubicacion"),
       };
     }),
 
   pickTerm: (termSelected) => set({ termSelected }),
 
   pickInvestmentPct: (id) =>
-    set(() => {
-      const table: Record<InvestmentPctId, TripTuple> = {
-        "10": [COTIZADOR_PANEL_MESSAGES.enganche10, COTIZADOR_PANEL_AVATARS.enganche10],
-        "5": [COTIZADOR_PANEL_MESSAGES.enganche5, COTIZADOR_PANEL_AVATARS.enganche5],
-        "1": [COTIZADOR_PANEL_MESSAGES.enganche1, COTIZADOR_PANEL_AVATARS.enganche1],
-      };
-      const [msg, avatar] = table[id];
-
+    set((state) => {
+      const key = enganchePanelKey(id);
       return {
         investmentPct: id,
-        dynamicMessage: msg,
-        avatarUrl: avatar,
-        baselineTrip: [msg, avatar],
+        ...applyPanelKeys(state.language, key, key),
       };
     }),
 
   updateDreamSqmRaw: (raw) => {
-    const purpose = get().purpose;
+    const state = get();
+    const purpose = state.purpose;
     const v = clampSqmToPurposeBounds(Number.parseFloat(raw), purpose);
     const sqmStr = String(v);
-    const panelTrip = panelTripForSqmChange(purpose, v);
+    const panelTrip = panelTripForSqmChange(purpose, v, state.language);
 
     if (panelTrip) {
-      const [msg, av] = panelTrip;
+      const displayKey =
+        purpose === "terreno" ? terrenoSqmPanelKey(v) : purposeToPanelKey(purpose!);
+      const baselineKey =
+        purpose === "terreno" ? purposeToPanelKey("terreno") : displayKey;
+
       set({
         metrosCuadradosStr: sqmStr,
-        dynamicMessage: msg,
-        avatarUrl: av,
         tamanoHuge: terrenoSqmHighlight(v, purpose),
+        panelMessageKey: displayKey,
+        baselinePanelKey: baselineKey,
+        dynamicMessage: panelTrip[0],
+        avatarUrl: panelTrip[1],
+        baselineTrip: getPanelTrip(baselineKey, state.language),
       });
       return;
     }
@@ -169,34 +181,14 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
   },
 
   pickCurrency: (id) =>
-    set(() => {
-      if (id === "mxn") {
-        const msg = COTIZADOR_PANEL_MESSAGES.currencyMxn;
-        const av = COTIZADOR_PANEL_AVATARS.mxn;
-        return {
-          currency: id,
-          dynamicMessage: msg,
-          avatarUrl: av,
-          baselineTrip: [msg, av],
-        };
-      }
-      const msg = COTIZADOR_PANEL_MESSAGES.currencyUsd;
-      const av = COTIZADOR_PANEL_AVATARS.usd;
+    set((state) => {
+      const key = id === "mxn" ? "currencyMxn" : "currencyUsd";
       return {
         currency: id,
-        dynamicMessage: msg,
-        avatarUrl: av,
-        baselineTrip: [msg, av],
+        ...applyPanelKeys(state.language, key, key),
       };
     }),
 
   guardianTap: () =>
-    set({
-      dynamicMessage: COTIZADOR_PANEL_MESSAGES.guardianGreeting,
-      avatarUrl: COTIZADOR_PANEL_AVATARS.guardianSaludo,
-      baselineTrip: [
-        COTIZADOR_PANEL_MESSAGES.guardianGreeting,
-        COTIZADOR_PANEL_AVATARS.guardianSaludo,
-      ],
-    }),
+    set((state) => applyPanelKeys(state.language, "guardian", "guardian")),
 }));

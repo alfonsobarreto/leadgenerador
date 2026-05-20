@@ -4,8 +4,10 @@ import Image from "next/image";
 import { useMemo } from "react";
 import type { JSX } from "react";
 import { DynamicHeadline } from "@/components/cotizador/dynamic-headline";
+import { LanguageToggle } from "@/components/cotizador/language-toggle";
 import { calcularCotizacion } from "@/lib/cotizacion-calculator";
-import { COTIZADOR_PANEL_MESSAGES } from "@/lib/cotizador-panel-messages";
+import { getPanelMessageText } from "@/lib/i18n/panel-trip";
+import { useTranslation } from "@/lib/i18n/use-translation";
 import type { CurrencyId, InvestmentPctId, TermId } from "@/lib/cotizador-ui-store";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
 import { precioMetroCuadradoMock } from "@/lib/tarifas-m2-mock";
@@ -36,6 +38,8 @@ function engancheNumericoPct(id: InvestmentPctId | null): number {
 }
 
 export function FinancialDashboard(): JSX.Element {
+  const t = useTranslation();
+  const language = useCotizadorUiStore((s) => s.language);
   const dynamicMessage = useCotizadorUiStore((s) => s.dynamicMessage);
   const avatarUrl = useCotizadorUiStore((s) => s.avatarUrl);
   const guardianTap = useCotizadorUiStore((s) => s.guardianTap);
@@ -73,15 +77,20 @@ export function FinancialDashboard(): JSX.Element {
     ubicacionSeleccionada,
   ]);
 
+  const guardianLabel = getPanelMessageText("guardian", language);
+
   return (
     <div className="relative isolate shrink-0 pb-3 pt-[max(0.5rem,env(safe-area-inset-top))]">
-      {/* Fila título + avatar: sin posición absoluta ni solapamiento con la tarjeta inferior */}
-      <div className="mx-auto flex max-w-xl items-center gap-3 px-1 sm:gap-4 sm:px-2">
+      <div className="absolute right-1 top-[max(0.35rem,env(safe-area-inset-top))] z-20 sm:right-2">
+        <LanguageToggle />
+      </div>
+
+      <div className="mx-auto flex max-w-xl items-center gap-3 px-1 pr-[4.5rem] sm:gap-4 sm:px-2 sm:pr-[5rem]">
         <DynamicHeadline text={dynamicMessage} />
 
         <button
           type="button"
-          aria-label={`Guardian del sueño: ${COTIZADOR_PANEL_MESSAGES.guardianGreeting}`}
+          aria-label={`Guardian del sueño: ${guardianLabel}`}
           onClick={guardianTap}
           className="relative flex size-[4.25rem] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/40 bg-zinc-950/70 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/15 transition-[transform,filter] hover:brightness-110 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[4.75rem] sm:rounded-[1.25rem]"
         >
@@ -103,10 +112,10 @@ export function FinancialDashboard(): JSX.Element {
         aria-label="Resumen financiero"
         className="mx-auto mt-3 max-w-xl space-y-1 rounded-2xl border border-white/18 bg-zinc-950/60 px-2.5 py-2.5 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md sm:mt-3.5 sm:px-3"
       >
-        <MetricRow label="Precio de lista" value={cotizada.precioLista} />
-        <MetricRow label="Inversión inicial" value={cotizada.montoEnganche} />
-        <MetricRow label="Monto a financiar" value={cotizada.montoAFinanciar} />
-        <MetricRow label="Mensualidades S.I." value={cotizada.pagoMensualInicial} />
+        <MetricRow label={t("listPrice")} value={cotizada.precioLista} />
+        <MetricRow label={t("initialInvestment")} value={cotizada.montoEnganche} />
+        <MetricRow label={t("amountToFinance")} value={cotizada.montoAFinanciar} />
+        <MetricRow label={t("monthlyPaymentsNoInterest")} value={cotizada.pagoMensualInicial} />
       </div>
     </div>
   );

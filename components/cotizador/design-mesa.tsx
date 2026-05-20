@@ -6,6 +6,7 @@ import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import { MesaDeDisenoLogo } from "./mesa-logo";
 import { clampSqmToPurposeBounds, parseSqmStored, sqmBoundsForPurpose } from "@/lib/dream-sqm-bounds";
+import { useTranslation } from "@/lib/i18n/use-translation";
 import type { InvestmentPctId, PurposeId, TermId, UbicacionId } from "@/lib/cotizador-ui-store";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
 
@@ -24,10 +25,11 @@ function purposeActiveClass(selected: boolean): string {
 }
 
 function DreamRadioGroup(): JSX.Element {
-  const opts: readonly { id: PurposeId; label: string }[] = [
-    { id: "lote-habitacional", label: "Mi casa" },
-    { id: "terreno", label: "Mi Terreno" },
-    { id: "negocio", label: "Mi Negocio" },
+  const t = useTranslation();
+  const opts: readonly { id: PurposeId; labelKey: "myHouse" | "myLot" | "myBusiness" }[] = [
+    { id: "lote-habitacional", labelKey: "myHouse" },
+    { id: "terreno", labelKey: "myLot" },
+    { id: "negocio", labelKey: "myBusiness" },
   ];
 
   const purpose = useCotizadorUiStore((s) => s.purpose);
@@ -36,7 +38,7 @@ function DreamRadioGroup(): JSX.Element {
   return (
     <fieldset>
       <legend className="sr-only">Tipo de proyecto</legend>
-      <FieldLabelTiny id="dream-group-label">Tu sueño:</FieldLabelTiny>
+      <FieldLabelTiny id="dream-group-label">{t("yourDream")}</FieldLabelTiny>
       <div
         className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 rounded-xl border border-white/12 bg-black/28 px-2 py-1.5 backdrop-blur-md [@media(min-width:360px)]:justify-center [@media(min-width:360px)]:gap-x-5"
         aria-labelledby="dream-group-label"
@@ -55,7 +57,7 @@ function DreamRadioGroup(): JSX.Element {
               style={{ accentColor: violet }}
               className="size-4 shrink-0 border border-white/90 bg-white/15 shadow-inner shadow-black/25 sm:size-[1.05rem]"
             />
-            <span className="max-[320px]:max-w-[92px] max-[320px]:leading-tight">{opt.label}</span>
+            <span className="max-[320px]:max-w-[92px] max-[320px]:leading-tight">{t(opt.labelKey)}</span>
           </label>
         ))}
       </div>
@@ -64,18 +66,19 @@ function DreamRadioGroup(): JSX.Element {
 }
 
 function TermPlazoRadioGroup(): JSX.Element {
+  const t = useTranslation();
   const termSelected = useCotizadorUiStore((s) => s.termSelected);
   const pickTerm = useCotizadorUiStore((s) => s.pickTerm);
 
-  const items: readonly { id: TermId; label: string }[] = [
-    { id: "30", label: "30 años" },
-    { id: "20", label: "20 años" },
-    { id: "spot", label: "Al contado" },
+  const items: readonly { id: TermId; labelKey: "term30Years" | "term20Years" | "payInFull" }[] = [
+    { id: "30", labelKey: "term30Years" },
+    { id: "20", labelKey: "term20Years" },
+    { id: "spot", labelKey: "payInFull" },
   ];
 
   return (
     <fieldset>
-      <FieldLabelTiny id="plazo-label-inline">Plazos:</FieldLabelTiny>
+      <FieldLabelTiny id="plazo-label-inline">{t("terms")}</FieldLabelTiny>
       <div className="flex flex-wrap gap-1.5" aria-labelledby="plazo-label-inline">
         {items.map((it) => {
           const sel = termSelected === it.id;
@@ -96,7 +99,7 @@ function TermPlazoRadioGroup(): JSX.Element {
                 onChange={() => pickTerm(it.id)}
                 className="absolute inset-0 cursor-pointer opacity-0"
               />
-              <span className="pointer-events-none">{it.label}</span>
+              <span className="pointer-events-none">{t(it.labelKey)}</span>
             </label>
           );
         })}
@@ -116,6 +119,7 @@ function pctWrapClass(active: boolean, id: InvestmentPctId): string {
 }
 
 function InvestmentPctBoxes(): JSX.Element {
+  const t = useTranslation();
   const items = [
     { id: "10" as InvestmentPctId, label: "10%" },
     { id: "5" as InvestmentPctId, label: "5%" },
@@ -130,7 +134,7 @@ function InvestmentPctBoxes(): JSX.Element {
       <legend className="sr-only">Porcentaje de inversión inicial</legend>
       <div className="mb-1.5 flex justify-end px-px">
         <span id="pct-label-inline" className="text-[0.74rem] font-bold leading-none text-white sm:text-[0.8rem]">
-          Inversión inicial
+          {t("initialInvestment")}
         </span>
       </div>
       <div role="group" aria-labelledby="pct-label-inline" className="flex flex-wrap gap-2">
@@ -160,6 +164,7 @@ function InvestmentPctBoxes(): JSX.Element {
 }
 
 function DreamSizeSlider(): JSX.Element {
+  const t = useTranslation();
   const purpose = useCotizadorUiStore((s) => s.purpose);
   const tamanoHuge = useCotizadorUiStore((s) => s.tamanoHuge);
   const metrosCuadradosStr = useCotizadorUiStore((s) => s.metrosCuadradosStr);
@@ -191,13 +196,13 @@ function DreamSizeSlider(): JSX.Element {
           id="dream-size-slider-label"
           className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white/90 sm:text-[0.66rem]"
         >
-          TAMAÑO DEL SUEÑO
+          {t("dreamSize")}
         </span>
         <span
           aria-live="polite"
           className="shrink-0 text-[0.95rem] font-extrabold tabular-nums tracking-tight text-[#87e9db] drop-shadow-[0_0_10px_rgba(135,233,219,0.35)] sm:text-[1.02rem]"
         >
-          {sqmValue} M²
+          {sqmValue} {t("sqmUnit")}
         </span>
       </div>
 
@@ -230,6 +235,7 @@ function DreamSizeSlider(): JSX.Element {
 }
 
 function UbicacionField(): JSX.Element {
+  const t = useTranslation();
   const ubicacionSeleccionada = useCotizadorUiStore((s) => s.ubicacionSeleccionada);
   const setUbicacionSeleccionada = useCotizadorUiStore((s) => s.setUbicacionSeleccionada);
 
@@ -240,7 +246,7 @@ function UbicacionField(): JSX.Element {
 
   return (
     <div>
-      <FieldLabelTiny id="property-select-label">Ubicación</FieldLabelTiny>
+      <FieldLabelTiny id="property-select-label">{t("location")}</FieldLabelTiny>
       <div className="relative">
         <select
           aria-labelledby="property-select-label"
@@ -250,7 +256,7 @@ function UbicacionField(): JSX.Element {
           className="h-11 w-full appearance-none rounded-xl border-[1.5px] border-white bg-black/35 px-3 pr-12 text-[0.72rem] font-semibold tracking-tight text-white outline-none backdrop-blur-md hover:bg-black/42 focus-visible:ring-2 focus-visible:ring-[#ddd6fe] sm:h-11 sm:text-[0.78rem]"
         >
           <option value="" disabled className="text-zinc-900">
-            Selecciona la propiedad…
+            {t("selectProperty")}
           </option>
           <option value="qro" className="text-zinc-900">
             Querétaro · Centro
@@ -276,13 +282,14 @@ function currencyActive(sel: boolean): string {
 }
 
 function CurrencyRow(): JSX.Element {
+  const t = useTranslation();
   const currency = useCotizadorUiStore((s) => s.currency);
   const pickCurrency = useCotizadorUiStore((s) => s.pickCurrency);
 
   return (
     <fieldset className="min-w-0">
       <legend className="mb-1 block px-px text-[0.72rem] font-bold leading-none text-white sm:text-[0.78rem]">
-        Tipo de cambio
+        {t("currency")}
       </legend>
       <div className="grid grid-cols-2 gap-2">
           <label

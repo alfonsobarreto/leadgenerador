@@ -1,7 +1,12 @@
+"use client";
+
 import type { JSX } from "react";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 /** Logo Mesa de diseño en fila horizontal (menos alto verticalmente). */
 export function MesaDeDisenoLogo(): JSX.Element {
+  const t = useTranslation();
+
   return (
     <div className="mx-auto flex w-full max-w-xl shrink-0 flex-row items-center justify-center gap-2 pb-1 pt-1">
       <div
@@ -22,8 +27,8 @@ export function MesaDeDisenoLogo(): JSX.Element {
         </svg>
       </div>
       <div className="text-left uppercase tracking-[0.22em] text-[0.55rem] font-bold leading-tight text-white/95 shadow-black/40 drop-shadow-sm sm:text-[0.62rem] sm:tracking-[0.26em]">
-        <span className="block">Mesa de</span>
-        <span className="block">diseño</span>
+        <span className="block">{t("designBoardLine1")}</span>
+        <span className="block">{t("designBoardLine2")}</span>
       </div>
     </div>
   );

@@ -1,0 +1,39 @@
+export type LanguageId = "es" | "en";
+
+export type PanelMessageKey =
+  | "initial"
+  | "guardian"
+  | "purposeCasa"
+  | "purposeTerreno"
+  | "purposeNegocio"
+  | "ubicacion"
+  | "enganche10"
+  | "enganche5"
+  | "enganche1"
+  | "terrenoSqm48"
+  | "terrenoSqm36"
+  | "currencyMxn"
+  | "currencyUsd";
+
+export type UiTranslationKey =
+  | "listPrice"
+  | "initialInvestment"
+  | "amountToFinance"
+  | "monthlyPaymentsNoInterest"
+  | "designBoardLine1"
+  | "designBoardLine2"
+  | "yourDream"
+  | "myHouse"
+  | "myLot"
+  | "myBusiness"
+  | "location"
+  | "dreamSize"
+  | "terms"
+  | "term30Years"
+  | "term20Years"
+  | "payInFull"
+  | "currency"
+  | "quoteCta"
+  | "selectProperty"
+  | "sqmUnit"
+  | "languageToggleLabel";
