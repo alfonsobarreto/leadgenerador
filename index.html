@@ -22,7 +22,7 @@
   <main class="wrap">
     <h1>Cotizador en vivo</h1>
     <p>Calcula el valor estimado para <strong>Lotes</strong> y <strong>Casas</strong>.</p>
-    <p><small>Moneda: COP (peso colombiano)</small></p>
+    <p><small aria-label="Moneda utilizada en esta cotización: peso colombiano">Moneda: COP (peso colombiano)</small></p>
     <section class="grid" aria-label="Formulario cotizador">
       <div class="full">
         <label for="propertyType">Tipo de propiedad</label>
@@ -69,9 +69,12 @@
     const total = document.getElementById('total');
     const detail = document.getElementById('detail');
 
-    const currency = new Intl.NumberFormat('es-CO', {
+    const CURRENCY_LOCALE = 'es-CO';
+    const CURRENCY_CODE = 'COP';
+
+    const currency = new Intl.NumberFormat(CURRENCY_LOCALE, {
       style: 'currency',
-      currency: 'COP',
+      currency: CURRENCY_CODE,
       maximumFractionDigits: 2
     });
 
