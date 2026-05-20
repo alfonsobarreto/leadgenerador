@@ -65,6 +65,7 @@ export type CotizadorUiState = {
   tasaCambioMXNPerUSD: number;
 
   setLanguage: (language: LanguageId) => void;
+  toggleLanguage: () => void;
   pickPurpose: (id: PurposeId) => void;
   pickInvestmentPct: (id: InvestmentPctId) => void;
   updateDreamSqmRaw: (raw: string) => void;
@@ -98,7 +99,19 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
   tasaCambioMXNPerUSD: 17.05,
 
   setLanguage: (language) =>
-    set((state) => applyPanelKeys(language, state.panelMessageKey, state.baselinePanelKey)),
+    set((state) => ({
+      language,
+      ...applyPanelKeys(language, state.panelMessageKey, state.baselinePanelKey),
+    })),
+
+  toggleLanguage: () =>
+    set((state) => {
+      const language: LanguageId = state.language === "es" ? "en" : "es";
+      return {
+        language,
+        ...applyPanelKeys(language, state.panelMessageKey, state.baselinePanelKey),
+      };
+    }),
 
   pickPurpose: (id) =>
     set((state) => {

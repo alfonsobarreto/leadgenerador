@@ -36,4 +36,7 @@ export type UiTranslationKey =
   | "quoteCta"
   | "selectProperty"
   | "sqmUnit"
-  | "languageToggleLabel";
+  | "languageToggleLabel"
+  | "locationQro"
+  | "locationCancun"
+  | "financialSummaryAria";

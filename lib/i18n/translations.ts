@@ -23,6 +23,9 @@ export const UI_TRANSLATIONS: Record<LanguageId, Record<UiTranslationKey, string
     selectProperty: "Selecciona la propiedad…",
     sqmUnit: "M²",
     languageToggleLabel: "Idioma",
+    locationQro: "Querétaro · Centro",
+    locationCancun: "Cancún · Esmeralda",
+    financialSummaryAria: "Resumen financiero",
   },
   en: {
     listPrice: "List Price",
@@ -46,6 +49,9 @@ export const UI_TRANSLATIONS: Record<LanguageId, Record<UiTranslationKey, string
     selectProperty: "Select a property…",
     sqmUnit: "M²",
     languageToggleLabel: "Language",
+    locationQro: "Querétaro · Downtown",
+    locationCancun: "Cancún · Esmeralda",
+    financialSummaryAria: "Financial summary",
   },
 };
 

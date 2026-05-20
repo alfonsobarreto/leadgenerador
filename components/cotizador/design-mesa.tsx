@@ -259,10 +259,10 @@ function UbicacionField(): JSX.Element {
             {t("selectProperty")}
           </option>
           <option value="qro" className="text-zinc-900">
-            Querétaro · Centro
+            {t("locationQro")}
           </option>
           <option value="cancun" className="text-zinc-900">
-            Cancún · Esmeralda
+            {t("locationCancun")}
           </option>
         </select>
         <ChevronDown

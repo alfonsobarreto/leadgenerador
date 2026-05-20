@@ -109,7 +109,7 @@ export function FinancialDashboard(): JSX.Element {
       {/* Tarjeta de resultados: separación real; un solo capa de blur (no “doble vidrio” encima del título) */}
       <div
         role="region"
-        aria-label="Resumen financiero"
+        aria-label={t("financialSummaryAria")}
         className="mx-auto mt-3 max-w-xl space-y-1 rounded-2xl border border-white/18 bg-zinc-950/60 px-2.5 py-2.5 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md sm:mt-3.5 sm:px-3"
       >
         <MetricRow label={t("listPrice")} value={cotizada.precioLista} />
