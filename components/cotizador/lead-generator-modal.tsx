@@ -145,11 +145,15 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-4" aria-hidden={!isOpen}>
+    <div
+      className="pointer-events-none absolute inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-3"
+      aria-hidden={!isOpen}
+    >
+      {/* Capa clickable: sólo zona de mesa (`absolute` dentro del padre relative del shell). */}
       <button
         type="button"
         aria-label={language === "en" ? "Close" : "Cerrar"}
-        className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
+        className="pointer-events-auto absolute inset-0 bg-black/65 backdrop-blur-[2px]"
         onClick={() => {
           setStep(1);
           onClose();
@@ -161,7 +165,7 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
         aria-modal="true"
         aria-labelledby="lead-modal-title"
         aria-describedby={step === 1 ? "lead-modal-desc-1" : undefined}
-        className="relative z-10 mb-0 flex max-h-[min(92dvh,44rem)] w-full max-w-[min(100vw,28rem)] flex-col rounded-t-[1.65rem] border border-white/14 border-b-0 bg-zinc-950/98 shadow-[0_-24px_60px_-12px_rgba(0,0,0,0.65)] sm:mb-auto sm:max-h-[85dvh] sm:rounded-[1.5rem] sm:border-b-[1px] sm:border-zinc-800"
+        className="pointer-events-auto relative z-10 mb-0 flex max-h-[min(88dvh,40rem)] w-full flex-col rounded-t-[1.65rem] border border-white/14 border-b-0 bg-zinc-950/98 shadow-[0_-24px_60px_-12px_rgba(0,0,0,0.65)] sm:mb-auto sm:max-h-[min(78dvh,36rem)] sm:rounded-[1.5rem] sm:border-b sm:border-zinc-800"
       >
         <div className="sticky top-0 z-[1] flex justify-center pb-2 pt-2.5">
           <div className="h-1 w-10 rounded-full bg-white/35 sm:hidden" aria-hidden />

@@ -25,11 +25,13 @@ export function CotizadorShell(): JSX.Element {
             <FinancialDashboard />
           </header>
 
-          <DesignMesa onOpenLeadModal={() => setLeadModalOpen(true)} />
+          {/* Modal solo cubre la mesa (controles); el dashboard de resultados queda fuera */}
+          <div className="relative isolate z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
+            <LeadGeneratorModal isOpen={leadModalOpen} onClose={() => setLeadModalOpen(false)} quote={quote} />
+            <DesignMesa onOpenLeadModal={() => setLeadModalOpen(true)} />
+          </div>
         </div>
       </div>
-
-      <LeadGeneratorModal isOpen={leadModalOpen} onClose={() => setLeadModalOpen(false)} quote={quote} />
     </div>
   );
 }
