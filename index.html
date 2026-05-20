@@ -22,7 +22,7 @@
   <main class="wrap">
     <h1>Cotizador en vivo</h1>
     <p>Calcula el valor estimado para <strong>Lotes</strong> y <strong>Casas</strong>.</p>
-    <p><small aria-label="Moneda utilizada en esta cotización: peso colombiano">Moneda: COP (peso colombiano)</small></p>
+    <p><small>Moneda: COP (peso colombiano)</small></p>
     <section class="grid" aria-label="Formulario cotizador">
       <div class="full">
         <label for="propertyType">Tipo de propiedad</label>
@@ -105,10 +105,10 @@
       total.textContent = currency.format(grandTotal);
       if (isHouse) {
         detail.textContent = `Terreno: ${landAreaValue} m² × ${landPriceText} + Construcción: ${buildAreaValue} m² × ${buildPriceText}`;
-        detail.setAttribute('aria-label', `Detalle del cálculo para casa. Terreno ${landAreaValue} metros cuadrados por ${landPriceText} pesos colombianos. Construcción ${buildAreaValue} metros cuadrados por ${buildPriceText} pesos colombianos.`);
+        detail.setAttribute('aria-label', `Detalle del cálculo para casa. Terreno ${landAreaValue} metros cuadrados por ${landPriceText}. Construcción ${buildAreaValue} metros cuadrados por ${buildPriceText}.`);
       } else {
         detail.textContent = `Lote: ${landAreaValue} m² × ${landPriceText}`;
-        detail.setAttribute('aria-label', `Detalle del cálculo para lote. ${landAreaValue} metros cuadrados por ${landPriceText} pesos colombianos.`);
+        detail.setAttribute('aria-label', `Detalle del cálculo para lote. ${landAreaValue} metros cuadrados por ${landPriceText}.`);
       }
     }
 
