@@ -184,9 +184,9 @@ function DreamSizeSlider(): JSX.Element {
 
   return (
     <div
-      className={`rounded-xl border border-white/12 bg-black/28 px-2.5 py-2.5 backdrop-blur-md sm:px-3 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/75 ring-offset-1 ring-offset-black/55" : ""}`}
+      className={`rounded-xl border border-white/12 bg-black/28 px-2.5 pt-2.5 pb-2 backdrop-blur-md sm:px-3 sm:pb-2 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/75 ring-offset-1 ring-offset-black/55" : ""}`}
     >
-      <div className="mb-2 flex items-baseline justify-between gap-2">
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <span
           id="dream-size-slider-label"
           className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white/90 sm:text-[0.66rem]"
@@ -201,7 +201,7 @@ function DreamSizeSlider(): JSX.Element {
         </span>
       </div>
 
-      <div className="touch-manipulation px-0.5 py-2.5">
+      <div className="touch-manipulation px-0.5 pt-2 pb-1.5">
         <input
           id="dream-size-slider"
           type="range"
@@ -220,7 +220,7 @@ function DreamSizeSlider(): JSX.Element {
           }}
           className="dream-size-range block w-full cursor-pointer appearance-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
         />
-        <div className="mt-0.5 flex justify-between px-0.5 text-[0.58rem] font-semibold tabular-nums text-white/55">
+        <div className="mt-px flex justify-between px-0.5 text-[0.58rem] font-semibold tabular-nums text-white/55">
           <span>{min}</span>
           <span>{max}</span>
         </div>
@@ -324,8 +324,8 @@ export function DesignMesa(): JSX.Element {
 
         <div className="flex shrink-0 flex-col gap-y-2 sm:gap-y-2.5">
           <DreamRadioGroup />
-          <DreamSizeSlider />
           <UbicacionField />
+          <DreamSizeSlider />
           <TermPlazoRadioGroup />
           <InvestmentPctBoxes />
           <CurrencyRow />

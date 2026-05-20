@@ -3,8 +3,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 
-const MIN_FONT_PX = 11;
-const MAX_FONT_PX = 17;
+/** Escala 1.5× respecto al rango anterior (11–17px → 17–26px); shrink solo si no cabe. */
+const HEADLINE_SCALE = 1.5;
+const MIN_FONT_PX = Math.round(11 * HEADLINE_SCALE);
+const MAX_FONT_PX = Math.round(17 * HEADLINE_SCALE);
 
 type DynamicHeadlineProps = {
   text: string;
@@ -58,12 +60,12 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
   return (
     <div
       ref={containerRef}
-      className="flex min-h-[4.25rem] min-w-0 flex-1 items-center justify-center px-0.5 sm:min-h-[4.75rem] sm:px-1"
+      className="flex min-h-[5.25rem] min-w-0 flex-1 items-center justify-center px-0.5 sm:min-h-[5.75rem] sm:px-1"
       aria-live="polite"
     >
       <h1
         ref={textRef}
-        className="max-h-full w-full text-center font-extrabold leading-[1.2] tracking-tight text-white text-balance break-words hyphens-auto drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
+        className="max-h-full w-full text-center font-extrabold leading-[1.15] tracking-tight text-white text-balance break-words hyphens-auto drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
         style={{ fontSize: `${fontPx}px` }}
       >
         {text}
