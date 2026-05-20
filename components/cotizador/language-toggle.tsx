@@ -1,46 +1,24 @@
 "use client";
 
 import type { JSX } from "react";
-import type { LanguageId } from "@/lib/i18n/types";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
-
-function LangChip({
-  code,
-  active,
-  onClick,
-}: {
-  code: Uppercase<LanguageId>;
-  active: boolean;
-  onClick: () => void;
-}): JSX.Element {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`min-w-[2.1rem] rounded-md px-2 py-1 text-[0.62rem] font-extrabold uppercase tracking-[0.12em] transition-[background,color,box-shadow] ${
-        active
-          ? "bg-[#8b2cf5] text-white shadow-[0_4px_14px_-4px_rgba(139,44,245,0.65)]"
-          : "text-white/70 hover:bg-white/10 hover:text-white"
-      }`}
-    >
-      {code}
-    </button>
-  );
-}
 
 export function LanguageToggle(): JSX.Element {
   const language = useCotizadorUiStore((s) => s.language);
   const setLanguage = useCotizadorUiStore((s) => s.setLanguage);
 
+  const label = language === "es" ? "ES" : "EN";
+  const next = language === "es" ? "en" : "es";
+
   return (
-    <div
-      role="group"
-      aria-label="Language"
-      className="flex shrink-0 items-center gap-0.5 rounded-lg border border-white/25 bg-black/45 p-0.5 backdrop-blur-md"
+    <button
+      type="button"
+      onClick={() => setLanguage(next)}
+      aria-label={language === "es" ? "Cambiar idioma a inglés" : "Switch language to Spanish"}
+      title={language === "es" ? "English" : "Español"}
+      className="flex size-[2.35rem] shrink-0 items-center justify-center rounded-lg border border-white/30 bg-black/50 text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-white shadow-[0_4px_16px_-6px_rgba(0,0,0,0.55)] backdrop-blur-md transition-[background,transform,box-shadow] hover:bg-[#8b2cf5]/35 hover:brightness-110 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[2.5rem] sm:text-[0.66rem]"
     >
-      <LangChip code="ES" active={language === "es"} onClick={() => setLanguage("es")} />
-      <LangChip code="EN" active={language === "en"} onClick={() => setLanguage("en")} />
-    </div>
+      {label}
+    </button>
   );
 }
