@@ -226,18 +226,18 @@ function DreamSizeCurrencyRow(): JSX.Element {
     <div className="grid grid-cols-2 gap-x-2 gap-y-2 sm:gap-x-2.5">
       <div className="min-w-0">
         <FieldLabelTiny id="dream-size-label">Tamaño de tu sueño</FieldLabelTiny>
-        <div className="relative mt-1">
-          <span className="pointer-events-none absolute -top-2 left-[1.875rem] z-10 whitespace-nowrap bg-gradient-to-r from-purple-950/92 via-purple-950/74 to-purple-950/92 px-1 pb-px text-[0.5625rem] font-extrabold uppercase tracking-[0.12em] text-white shadow-[0_1px_10px_rgba(0,0,0,0.35)] sm:left-[2.125rem] sm:text-[0.6rem]">
-            m²…
-          </span>
+        <div className="mt-1.5">
           <div
-            className={`relative flex items-center rounded-lg border-[1.5px] border-white bg-black/38 px-1.5 pb-1 pt-7 backdrop-blur-md transition-shadow focus-within:ring-[1px] focus-within:ring-[#ddd6fe] ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/92 ring-offset-1 ring-offset-black/70" : ""}`}
+            className={`relative flex min-h-[2.75rem] items-center gap-1.5 rounded-lg border-[1.5px] border-white bg-black/45 px-2 py-2 transition-shadow focus-within:ring-2 focus-within:ring-[#ddd6fe]/90 ${tamanoHuge ? "shadow-[inset_0_0_0_1px_rgba(253,224,71,0.35)] ring-2 ring-yellow-400/80 ring-offset-1 ring-offset-zinc-950/80" : ""}`}
           >
             <House
               aria-hidden
-              className="mx-1 size-[1.0625rem] shrink-0 text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.35)] sm:size-[1.125rem]"
+              className="size-[1.0625rem] shrink-0 text-white/95 sm:size-[1.125rem]"
               strokeWidth={2.75}
             />
+            <span className="shrink-0 text-[0.62rem] font-extrabold uppercase tracking-[0.1em] text-white/85" aria-hidden>
+              m²
+            </span>
             <input
               id="dream-size-input"
               aria-labelledby="dream-size-label"
@@ -250,7 +250,7 @@ function DreamSizeCurrencyRow(): JSX.Element {
               value={metrosCuadradosStr}
               onChange={syncSqm}
               onFocus={(e) => updateDreamSqmRaw(e.target.value)}
-              className="w-full bg-transparent pb-px text-[0.84rem] font-bold tabular-nums text-white outline-none placeholder:text-white/45 sm:text-[0.9rem]"
+              className="min-h-0 w-full min-w-0 bg-transparent text-[0.84rem] font-bold tabular-nums text-white outline-none placeholder:text-white/45 sm:text-[0.9rem]"
             />
           </div>
           <span id="dream-size-hint" className="sr-only">

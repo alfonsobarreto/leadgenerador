@@ -16,21 +16,19 @@ function plazoAnosDesdeTerm(term: TermId): number {
 
 function MetricRow({ label, value }: { label: string; value: string }): JSX.Element {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.17] bg-white/[0.11] px-2.5 py-1.5 shadow-inner shadow-black/25 backdrop-blur-md sm:gap-3 sm:px-3 sm:py-2">
+    <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.15] bg-white/[0.09] px-2.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:gap-3 sm:px-3 sm:py-2">
       <span className="text-[11px] font-bold leading-snug text-white sm:text-xs">{label}</span>
-      <span className="max-w-[55%] text-right text-[0.78rem] font-extrabold tabular-nums tracking-tight text-[#87e9db] drop-shadow-[0_0_10px_rgba(135,233,219,0.38)] sm:text-[0.85rem]">
+      <span className="max-w-[55%] text-right text-[0.78rem] font-extrabold tabular-nums tracking-tight text-[#87e9db] drop-shadow-[0_0_8px_rgba(135,233,219,0.28)] sm:text-[0.85rem]">
         {value}
       </span>
     </div>
   );
 }
 
-/** Moneda efectiva para cálculos (USD sólo después de clic explícito). */
 function monedaEfectiva(currency: CurrencyId | null): "USD" | "MXN" {
   return currency === "usd" ? "USD" : "MXN";
 }
 
-/** Enganche efectivo antes de primera selección (= 10% como antes). */
 function engancheNumericoPct(id: InvestmentPctId | null): number {
   if (id == null) return 10;
   return Number.parseInt(id, 10);
@@ -75,36 +73,36 @@ export function FinancialDashboard(): JSX.Element {
   ]);
 
   return (
-    <div className="relative shrink-0 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
-      <div className="relative mx-auto flex max-w-xl items-start justify-center pb-6 pr-[5.125rem] pl-3 sm:pr-[6.125rem]">
-        <h1 className="line-clamp-3 max-h-[5.55rem] text-left text-[0.93rem] font-extrabold leading-snug tracking-tight text-white drop-shadow-[0_1px_18px_rgba(0,0,0,0.35)] sm:max-h-none sm:text-[1.1rem] sm:leading-snug [@media(min-width:380px)]:[text-align:center]">
+    <div className="relative isolate shrink-0 pb-3 pt-[max(0.5rem,env(safe-area-inset-top))]">
+      {/* Fila título + avatar: sin posición absoluta ni solapamiento con la tarjeta inferior */}
+      <div className="mx-auto flex max-w-xl items-start gap-3 px-1 sm:gap-4 sm:px-2">
+        <h1 className="min-h-0 min-w-0 flex-1 text-balance pt-0.5 text-[0.95rem] font-extrabold leading-snug tracking-tight text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)] sm:text-[1.08rem] sm:leading-snug">
           {dynamicMessage}
         </h1>
 
-        <div className="absolute right-0 top-0 flex items-start justify-center sm:right-2">
-          <button
-            type="button"
-            aria-label={`Guardian del sueño: ${COTIZADOR_PANEL_MESSAGES.guardianGreeting}`}
-            onClick={guardianTap}
-            className="relative flex size-[4.4375rem] shrink-0 items-center justify-center overflow-hidden rounded-[1.125rem] border border-white/35 bg-purple-950/45 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.52)] ring-2 ring-purple-950/55 backdrop-blur-md transition-[transform,filter] hover:brightness-110 active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[4.9375rem] sm:rounded-[1.2rem]"
-          >
-            <Image
-              src={avatarUrl}
-              alt=""
-              fill
-              unoptimized
-              sizes="124px"
-              className="object-cover"
-              key={avatarUrl}
-            />
-          </button>
-        </div>
+        <button
+          type="button"
+          aria-label={`Guardian del sueño: ${COTIZADOR_PANEL_MESSAGES.guardianGreeting}`}
+          onClick={guardianTap}
+          className="relative flex size-[4.25rem] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/40 bg-zinc-950/70 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/15 transition-[transform,filter] hover:brightness-110 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[4.75rem] sm:rounded-[1.25rem]"
+        >
+          <Image
+            src={avatarUrl}
+            alt=""
+            fill
+            unoptimized
+            sizes="108px"
+            className="object-cover"
+            key={avatarUrl}
+          />
+        </button>
       </div>
 
+      {/* Tarjeta de resultados: separación real; un solo capa de blur (no “doble vidrio” encima del título) */}
       <div
         role="region"
         aria-label="Resumen financiero"
-        className="relative z-[1] mx-auto -mt-10 max-w-xl space-y-1 rounded-xl border border-white/12 bg-black/38 px-2 pb-2 pt-2 shadow-[0_16px_48px_-16px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:-mt-[2.375rem]"
+        className="mx-auto mt-3 max-w-xl space-y-1 rounded-2xl border border-white/18 bg-zinc-950/60 px-2.5 py-2.5 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)] backdrop-blur-md sm:mt-3.5 sm:px-3"
       >
         <MetricRow label="Precio de lista" value={cotizada.precioLista} />
         <MetricRow label="Inversión inicial" value={cotizada.montoEnganche} />
