@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cotizador en vivo | Bienes raíces</title>
+  <style>
+    :root { font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f3f4f6; color: #111827; }
+    .wrap { max-width: 720px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 12px; }
+    h1 { margin-top: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 14px; margin-bottom: 4px; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; }
+    .full { grid-column: 1 / -1; }
+    .result { margin-top: 20px; padding: 16px; background: #eef2ff; border-radius: 10px; }
+    .value { font-size: 30px; font-weight: 700; margin: 8px 0 0; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Cotizador en vivo</h1>
+    <p>Calcula el valor estimado para <strong>Lotes</strong> y <strong>Casas</strong>.</p>
+    <section class="grid" aria-label="Formulario cotizador">
+      <div class="full">
+        <label for="propertyType">Tipo de propiedad</label>
+        <select id="propertyType">
+          <option value="lote">Lote</option>
+          <option value="casa">Casa</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="landArea">Área de terreno (m²)</label>
+        <input id="landArea" type="number" min="0" step="0.01" value="0" />
+      </div>
+      <div>
+        <label for="landPrice">Precio por m² de terreno</label>
+        <input id="landPrice" type="number" min="0" step="0.01" value="0" />
+      </div>
+
+      <div id="buildAreaGroup" class="hidden">
+        <label for="buildArea">Área construida (m²)</label>
+        <input id="buildArea" type="number" min="0" step="0.01" value="0" />
+      </div>
+      <div id="buildPriceGroup" class="hidden">
+        <label for="buildPrice">Costo por m² de construcción</label>
+        <input id="buildPrice" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <p>Total estimado</p>
+      <p id="total" class="value">$0.00</p>
+      <small id="detail">Lote: 0 m² × $0.00</small>
+    </section>
+  </main>
+
+  <script>
+    const propertyType = document.getElementById('propertyType');
+    const landArea = document.getElementById('landArea');
+    const landPrice = document.getElementById('landPrice');
+    const buildArea = document.getElementById('buildArea');
+    const buildPrice = document.getElementById('buildPrice');
+    const buildAreaGroup = document.getElementById('buildAreaGroup');
+    const buildPriceGroup = document.getElementById('buildPriceGroup');
+    const total = document.getElementById('total');
+    const detail = document.getElementById('detail');
+
+    const currency = new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 2
+    });
+
+    function numberOf(input) {
+      return Math.max(0, Number(input.value) || 0);
+    }
+
+    function updateUI() {
+      const isHouse = propertyType.value === 'casa';
+      buildAreaGroup.classList.toggle('hidden', !isHouse);
+      buildPriceGroup.classList.toggle('hidden', !isHouse);
+    }
+
+    function calculate() {
+      const landSubtotal = numberOf(landArea) * numberOf(landPrice);
+      const isHouse = propertyType.value === 'casa';
+      const buildSubtotal = isHouse ? numberOf(buildArea) * numberOf(buildPrice) : 0;
+      const grandTotal = landSubtotal + buildSubtotal;
+
+      total.textContent = currency.format(grandTotal);
+      if (isHouse) {
+        detail.textContent = `Terreno: ${numberOf(landArea)} m² × ${currency.format(numberOf(landPrice))} + Construcción: ${numberOf(buildArea)} m² × ${currency.format(numberOf(buildPrice))}`;
+      } else {
+        detail.textContent = `Lote: ${numberOf(landArea)} m² × ${currency.format(numberOf(landPrice))}`;
+      }
+    }
+
+    function refresh() {
+      updateUI();
+      calculate();
+    }
+
+    [propertyType, landArea, landPrice, buildArea, buildPrice].forEach((el) => {
+      el.addEventListener('input', refresh);
+      el.addEventListener('change', refresh);
+    });
+
+    refresh();
+  </script>
+</body>
+</html>
