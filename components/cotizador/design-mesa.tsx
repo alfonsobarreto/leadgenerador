@@ -4,7 +4,6 @@ import { ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import type { ChangeEvent } from "react";
 import type { JSX } from "react";
-import { MesaDeDisenoLogo } from "./mesa-logo";
 import { clampSqmToPurposeBounds, parseSqmStored, sqmBoundsForPurpose } from "@/lib/dream-sqm-bounds";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import type { InvestmentPctId, PurposeId, TermId, UbicacionId } from "@/lib/cotizador-ui-store";
@@ -327,8 +326,6 @@ export function DesignMesa(): JSX.Element {
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden" aria-label="Parámetros de cotización">
       <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain [-ms-overflow-style:none] [scrollbar-width:thin] sm:gap-1.5 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5">
-        <MesaDeDisenoLogo />
-
         <div className="flex shrink-0 flex-col gap-y-2 sm:gap-y-2.5">
           <DreamRadioGroup />
           <UbicacionField />
