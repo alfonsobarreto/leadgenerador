@@ -74,7 +74,7 @@
       maximumFractionDigits: 2
     });
 
-    function numberOf(input) {
+    function getPositiveNumber(input) {
       return Math.max(0, Number(input.value) || 0);
     }
 
@@ -85,16 +85,16 @@
     }
 
     function calculate() {
-      const landSubtotal = numberOf(landArea) * numberOf(landPrice);
+      const landSubtotal = getPositiveNumber(landArea) * getPositiveNumber(landPrice);
       const isHouse = propertyType.value === 'casa';
-      const buildSubtotal = isHouse ? numberOf(buildArea) * numberOf(buildPrice) : 0;
+      const buildSubtotal = isHouse ? getPositiveNumber(buildArea) * getPositiveNumber(buildPrice) : 0;
       const grandTotal = landSubtotal + buildSubtotal;
 
       total.textContent = currency.format(grandTotal);
       if (isHouse) {
-        detail.textContent = `Terreno: ${numberOf(landArea)} m² × ${currency.format(numberOf(landPrice))} + Construcción: ${numberOf(buildArea)} m² × ${currency.format(numberOf(buildPrice))}`;
+        detail.textContent = `Terreno: ${getPositiveNumber(landArea)} m² × ${currency.format(getPositiveNumber(landPrice))} + Construcción: ${getPositiveNumber(buildArea)} m² × ${currency.format(getPositiveNumber(buildPrice))}`;
       } else {
-        detail.textContent = `Lote: ${numberOf(landArea)} m² × ${currency.format(numberOf(landPrice))}`;
+        detail.textContent = `Lote: ${getPositiveNumber(landArea)} m² × ${currency.format(getPositiveNumber(landPrice))}`;
       }
     }
 
