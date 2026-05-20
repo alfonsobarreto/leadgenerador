@@ -3,22 +3,23 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 
-/** Escala 1.5× respecto al rango anterior (11–17px → 17–26px); shrink solo si no cabe. */
 const HEADLINE_SCALE = 1.5;
-const MIN_FONT_PX = Math.round(11 * HEADLINE_SCALE);
-const MAX_FONT_PX = Math.round(17 * HEADLINE_SCALE);
+const MIN_FONT_PX = Math.round(10 * HEADLINE_SCALE);
+const MAX_FONT_PX = Math.round(18 * HEADLINE_SCALE);
+
+/** Altura fija del cuadro — no depende del contenido. */
+const HEADLINE_BOX_H = "h-[5.25rem] sm:h-[5.75rem]";
 
 type DynamicHeadlineProps = {
   text: string;
 };
 
 /**
- * Título dinámico centrado en su celda (eje X y Y), con wrap y tamaño que
- * crece o reduce hasta llenar el espacio disponible sin desbordar.
+ * Contenedor de tamaño fijo; el texto hace wrap y reduce font-size (shrink-to-fit) para caber dentro.
  */
 export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
   const [fontPx, setFontPx] = useState(MAX_FONT_PX);
 
   useLayoutEffect(() => {
@@ -27,6 +28,10 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
     if (!container || !el) return;
 
     const fit = (): void => {
+      const boxH = container.clientHeight;
+      const boxW = container.clientWidth;
+      if (boxH <= 0 || boxW <= 0) return;
+
       let lo = MIN_FONT_PX;
       let hi = MAX_FONT_PX;
       let best = MIN_FONT_PX;
@@ -36,8 +41,7 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
         el.style.fontSize = `${mid}px`;
 
         const overflows =
-          el.scrollHeight > container.clientHeight + 1 ||
-          el.scrollWidth > container.clientWidth + 1;
+          el.scrollHeight > boxH + 1 || el.scrollWidth > boxW + 1;
 
         if (overflows) {
           hi = mid - 1;
@@ -60,16 +64,18 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
   return (
     <div
       ref={containerRef}
-      className="flex min-h-[5.25rem] min-w-0 flex-1 items-center justify-center px-0.5 sm:min-h-[5.75rem] sm:px-1"
+      className={`relative ${HEADLINE_BOX_H} min-w-0 flex-1 shrink overflow-hidden px-0.5 sm:px-1`}
       aria-live="polite"
     >
-      <h1
-        ref={textRef}
-        className="max-h-full w-full text-center font-extrabold leading-[1.15] tracking-tight text-white text-balance break-words hyphens-auto drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
-        style={{ fontSize: `${fontPx}px` }}
-      >
-        {text}
-      </h1>
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden p-0.5">
+        <span
+          ref={textRef}
+          className="block w-full max-h-full text-center font-extrabold leading-[1.12] tracking-tight text-white text-balance break-words hyphens-auto drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
+          style={{ fontSize: `${fontPx}px` }}
+        >
+          {text}
+        </span>
+      </div>
     </div>
   );
 }

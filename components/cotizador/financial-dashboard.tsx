@@ -85,7 +85,7 @@ export function FinancialDashboard(): JSX.Element {
         <LanguageToggle />
       </div>
 
-      <div className="mx-auto flex max-w-xl items-center gap-3 px-1 pr-[4.5rem] sm:gap-4 sm:px-2 sm:pr-[5rem]">
+      <div className="mx-auto flex h-[5.25rem] max-w-xl items-center gap-3 px-1 pr-[4.5rem] sm:h-[5.75rem] sm:gap-4 sm:px-2 sm:pr-[5rem]">
         <DynamicHeadline text={dynamicMessage} />
 
         <button
