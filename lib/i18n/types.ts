@@ -68,4 +68,5 @@ export type UiTranslationKey =
   | "leadDreamCloserLine"
   | "leadVideoSafeInvest"
   | "leadVideoMyths"
-  | "leadFinishRestart";
+  | "leadFinishRestart"
+  | "leadWhatsAppContactAdvisor";

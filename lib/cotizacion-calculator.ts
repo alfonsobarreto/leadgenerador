@@ -48,7 +48,7 @@ export function calcularCotizacion(
   const descuentoPorcentaje = porcentajeEnganche / 100.0;
   const precioFinalConDescuento = precioListaMXN * (1 - descuentoPorcentaje);
 
-  let engancheTeorico = precioFinalConDescuento * (porcentajeEnganche / 100.0);
+  const engancheTeorico = precioFinalConDescuento * (porcentajeEnganche / 100.0);
   let montoEngancheMXN = engancheTeorico;
 
   if (porcentajeEnganche === 10) {

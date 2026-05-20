@@ -5,6 +5,8 @@ import type { ChangeEvent, JSX } from "react";
 import type { CotizacionCalculada } from "@/lib/cotizacion-calculator";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
+import type { MockAgent } from "@/src/lib/mockData";
+import { whatsappDigitsForWaMe } from "@/src/lib/mockData";
 
 const VIDEO_SAFE_INVEST_OPEN =
   "https://www.youtube.com/results?search_query=inversion+segura+vivienda";
@@ -17,6 +19,23 @@ function tpl(template: string, vars: Record<string, string>): string {
     out = out.replaceAll(`{${key}}`, val);
   }
   return out;
+}
+
+/** Mensaje inicial para wa.me con datos del lead y la cotización mostrada. */
+function buildAdvisorWhatsAppUrl(
+  agent: MockAgent,
+  lang: string,
+  leadDisplayFirstName: string,
+  monthlyLine: string,
+): string | null {
+  const digits = whatsappDigitsForWaMe(agent.whatsapp);
+  if (!digits) return null;
+  const who = leadDisplayFirstName.trim() || (lang === "en" ? "there" : "Cliente");
+  const text =
+    lang === "en"
+      ? `Hello! I'm ${who}. I'd like to follow up on the quote I generated (${monthlyLine}). I'd prefer WhatsApp — thanks!`
+      : `¡Hola! Soy ${who}. Quiero dar seguimiento a la cotización que generé (${monthlyLine}). Prefiero WhatsApp, ¡gracias!`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
 /** Primera parte del nombre para el saludo; si viene vacío, placeholder neutral. */
@@ -37,6 +56,7 @@ export type LeadDraft = {
 export type LeadContactPreference = "quote_only" | "appointment";
 
 type LeadGeneratorModalProps = {
+  agent: MockAgent;
   isOpen: boolean;
   onClose: () => void;
   /** Cotización en vivo desde la mesa (mismo cálculo que el dashboard). */
@@ -51,7 +71,32 @@ const emptyLead: LeadDraft = {
   mensaje: "",
 };
 
-export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModalProps): JSX.Element | null {
+function ToggleRow({
+  id,
+  checked,
+  onChecked,
+  label,
+}: {
+  id: string;
+  checked: boolean;
+  onChecked: (v: boolean) => void;
+  label: string;
+}): JSX.Element {
+  return (
+    <label htmlFor={id} className="flex cursor-pointer items-center gap-2.5 py-0.5 text-[0.72rem] font-semibold leading-snug text-white/92">
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChecked(e.target.checked)}
+        className="size-4 shrink-0 accent-[#8b2cf5]"
+      />
+      {label}
+    </label>
+  );
+}
+
+export function LeadGeneratorModal({ agent, isOpen, onClose, quote }: LeadGeneratorModalProps): JSX.Element | null {
   const t = useTranslation();
   const language = useCotizadorUiStore((s) => s.language);
   const resetCotizadorToStart = useCotizadorUiStore((s) => s.resetCotizadorToStart);
@@ -64,20 +109,28 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
   const [preference, setPreference] = useState<LeadContactPreference>("quote_only");
 
   useEffect(() => {
-    if (!isOpen) return;
-    setStep(1);
-    setLead(emptyLead);
-    setSameForDeed(true);
-    setSameWaAsCell(true);
-    setShowExtraMessage(false);
-    setPreference("quote_only");
+    if (!isOpen) return undefined;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setStep(1);
+      setLead(emptyLead);
+      setSameForDeed(true);
+      setSameWaAsCell(true);
+      setShowExtraMessage(false);
+      setPreference("quote_only");
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (sameWaAsCell) {
-      setLead((prev) => ({ ...prev, whatsapp: prev.celular }));
+  const handleSameWaAsCellToggle = (v: boolean): void => {
+    setSameWaAsCell(v);
+    if (v) {
+      setLead((p) => ({ ...p, whatsapp: p.celular }));
     }
-  }, [sameWaAsCell, lead.celular]);
+  };
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -106,29 +159,6 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
     setStep(4);
   };
 
-  const ToggleRow = ({
-    id,
-    checked,
-    onChecked,
-    label,
-  }: {
-    id: string;
-    checked: boolean;
-    onChecked: (v: boolean) => void;
-    label: string;
-  }): JSX.Element => (
-    <label htmlFor={id} className="flex cursor-pointer items-center gap-2.5 py-0.5 text-[0.72rem] font-semibold leading-snug text-white/92">
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChecked(e.target.checked)}
-        className="size-4 shrink-0 accent-[#8b2cf5]"
-      />
-      {label}
-    </label>
-  );
-
   const handleFinishRestart = (): void => {
     resetCotizadorToStart();
     onClose();
@@ -138,7 +168,7 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
 
   const montlyStr = quote.pagoMensualInicial;
 
-  const openVideo = (url: string): void => {
+  const openExternalLink = (url: string): void => {
     if (typeof window !== "undefined") {
       window.open(url, "_blank", "noopener,noreferrer");
     }
@@ -237,7 +267,7 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
               <ToggleRow
                 id="lead-wa-same-toggle"
                 checked={sameWaAsCell}
-                onChecked={setSameWaAsCell}
+                onChecked={handleSameWaAsCellToggle}
                 label={t("leadToggleWaSameAsCell")}
               />
               {!sameWaAsCell && (
@@ -363,17 +393,36 @@ export function LeadGeneratorModal({ isOpen, onClose, quote }: LeadGeneratorModa
               <p className="text-[0.78rem] leading-relaxed text-white/85 sm:text-[0.82rem]">
                 {t("leadDreamCloserLine")}
               </p>
+              {(() => {
+                const monthlyLine = tpl(t("leadMonthlyFromTpl"), { monto: montlyStr });
+                const waUrl = buildAdvisorWhatsAppUrl(
+                  agent,
+                  language,
+                  displayNombre(lead.nombre, language),
+                  monthlyLine,
+                );
+                if (!waUrl) return null;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => openExternalLink(waUrl)}
+                    className="h-11 w-full rounded-xl bg-[#25D366] px-4 text-[0.72rem] font-extrabold uppercase tracking-[0.06em] text-white shadow-[0_12px_28px_-10px_rgba(37,211,102,0.55)] hover:brightness-110 sm:text-[0.76rem]"
+                  >
+                    {t("leadWhatsAppContactAdvisor")}
+                  </button>
+                );
+              })()}
               <div className="flex flex-col gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => openVideo(VIDEO_SAFE_INVEST_OPEN)}
+                  onClick={() => openExternalLink(VIDEO_SAFE_INVEST_OPEN)}
                   className="h-11 rounded-xl border border-[#ddd6fe]/50 bg-black/35 px-3 text-[0.68rem] font-extrabold uppercase tracking-[0.05em] text-white hover:bg-black/55 sm:text-[0.72rem]"
                 >
                   {t("leadVideoSafeInvest")}
                 </button>
                 <button
                   type="button"
-                  onClick={() => openVideo(VIDEO_MYTHS_OPEN)}
+                  onClick={() => openExternalLink(VIDEO_MYTHS_OPEN)}
                   className="h-11 rounded-xl border border-[#ddd6fd]/45 bg-black/35 px-3 text-[0.68rem] font-extrabold uppercase tracking-[0.05em] text-white hover:bg-black/55 sm:text-[0.72rem]"
                 >
                   {t("leadVideoMyths")}

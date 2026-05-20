@@ -7,12 +7,13 @@ import { DesignMesa } from "./design-mesa";
 import { FinancialDashboard } from "./financial-dashboard";
 import { LeadGeneratorModal } from "./lead-generator-modal";
 import { useLiveQuoteCalculation } from "@/lib/use-live-quote-calculation";
+import type { MockAgent } from "@/src/lib/mockData";
 
 /**
  * Pantalla tipo app nativa: alto fijo (`100dvh`), sin scroll global;
  * sólo overflow local muy acotado en la mesa si el viewport cae muy bajo.
  */
-export function CotizadorShell(): JSX.Element {
+export function CotizadorShell({ agent }: { agent: MockAgent }): JSX.Element {
   const [leadModalOpen, setLeadModalOpen] = useState(false);
   const quote = useLiveQuoteCalculation();
 
@@ -27,7 +28,12 @@ export function CotizadorShell(): JSX.Element {
 
           {/* Modal solo cubre la mesa (controles); el dashboard de resultados queda fuera */}
           <div className="relative isolate z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
-            <LeadGeneratorModal isOpen={leadModalOpen} onClose={() => setLeadModalOpen(false)} quote={quote} />
+            <LeadGeneratorModal
+              agent={agent}
+              isOpen={leadModalOpen}
+              onClose={() => setLeadModalOpen(false)}
+              quote={quote}
+            />
             <DesignMesa onOpenLeadModal={() => setLeadModalOpen(true)} />
           </div>
         </div>

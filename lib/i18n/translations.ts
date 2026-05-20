@@ -55,6 +55,7 @@ export const UI_TRANSLATIONS: Record<LanguageId, Record<UiTranslationKey, string
     leadVideoSafeInvest: "Ver Videos sobre Inversión Segura",
     leadVideoMyths: "Desmintiendo Mitos de Invertir en México",
     leadFinishRestart: "Finalizar y Volver al Inicio",
+    leadWhatsAppContactAdvisor: "Contactar a mi asesor por WhatsApp",
   },
   en: {
     listPrice: "List Price",
@@ -110,6 +111,7 @@ export const UI_TRANSLATIONS: Record<LanguageId, Record<UiTranslationKey, string
     leadVideoSafeInvest: "Watch Safe Investment Videos",
     leadVideoMyths: "Debunking Myths of Investing in Mexico",
     leadFinishRestart: "Finish and Return to Start",
+    leadWhatsAppContactAdvisor: "Contact my advisor on WhatsApp",
   },
 };
 
