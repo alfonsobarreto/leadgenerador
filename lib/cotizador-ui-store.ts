@@ -74,6 +74,7 @@ export type CotizadorUiState = {
 
   setUbicacionSeleccionada: (id: UbicacionId) => void;
   pickTerm: (term: TermId) => void;
+  resetCotizadorToStart: () => void;
 };
 
 const initialPanelKey: PanelMessageKey = "initial";
@@ -204,4 +205,16 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
 
   guardianTap: () =>
     set((state) => applyPanelKeys(state.language, "guardian", "guardian")),
+
+  resetCotizadorToStart: () =>
+    set((state) => ({
+      purpose: null,
+      investmentPct: null,
+      currency: null,
+      tamanoHuge: false,
+      metrosCuadradosStr: "125",
+      ubicacionSeleccionada: "",
+      termSelected: "30",
+      ...applyPanelKeys(state.language, initialPanelKey, initialPanelKey),
+    })),
 }));

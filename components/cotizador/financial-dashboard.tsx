@@ -1,21 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
 import type { JSX } from "react";
 import { DynamicHeadline } from "@/components/cotizador/dynamic-headline";
 import { LanguageToggle } from "@/components/cotizador/language-toggle";
-import { calcularCotizacion } from "@/lib/cotizacion-calculator";
 import { getPanelMessageText } from "@/lib/i18n/panel-trip";
 import { useTranslation } from "@/lib/i18n/use-translation";
-import type { CurrencyId, InvestmentPctId, TermId } from "@/lib/cotizador-ui-store";
+import { useLiveQuoteCalculation } from "@/lib/use-live-quote-calculation";
 import { useCotizadorUiStore } from "@/lib/cotizador-ui-store";
-import { precioMetroCuadradoMock } from "@/lib/tarifas-m2-mock";
-
-function plazoAnosDesdeTerm(term: TermId): number {
-  if (term === "spot") return 1;
-  return Number.parseInt(term, 10);
-}
 
 function MetricRow({ label, value }: { label: string; value: string }): JSX.Element {
   return (
@@ -28,15 +20,6 @@ function MetricRow({ label, value }: { label: string; value: string }): JSX.Elem
   );
 }
 
-function monedaEfectiva(currency: CurrencyId | null): "USD" | "MXN" {
-  return currency === "usd" ? "USD" : "MXN";
-}
-
-function engancheNumericoPct(id: InvestmentPctId | null): number {
-  if (id == null) return 10;
-  return Number.parseInt(id, 10);
-}
-
 export function FinancialDashboard(): JSX.Element {
   const t = useTranslation();
   const language = useCotizadorUiStore((s) => s.language);
@@ -44,38 +27,7 @@ export function FinancialDashboard(): JSX.Element {
   const avatarUrl = useCotizadorUiStore((s) => s.avatarUrl);
   const guardianTap = useCotizadorUiStore((s) => s.guardianTap);
 
-  const metrosCuadradosStr = useCotizadorUiStore((s) => s.metrosCuadradosStr);
-  const ubicacionSeleccionada = useCotizadorUiStore((s) => s.ubicacionSeleccionada);
-  const termSelected = useCotizadorUiStore((s) => s.termSelected);
-  const purpose = useCotizadorUiStore((s) => s.purpose);
-  const investmentPct = useCotizadorUiStore((s) => s.investmentPct);
-  const currency = useCotizadorUiStore((s) => s.currency);
-  const tasaCambioMXNPerUSD = useCotizadorUiStore((s) => s.tasaCambioMXNPerUSD);
-
-  const cotizada = useMemo(() => {
-    const precioM2 = precioMetroCuadradoMock(ubicacionSeleccionada, purpose);
-
-    const m2Floored = Number.isFinite(Number.parseFloat(metrosCuadradosStr))
-      ? Math.trunc(Number.parseFloat(metrosCuadradosStr))
-      : 0;
-
-    return calcularCotizacion(
-      precioM2,
-      m2Floored,
-      engancheNumericoPct(investmentPct),
-      plazoAnosDesdeTerm(termSelected),
-      tasaCambioMXNPerUSD,
-      monedaEfectiva(currency),
-    );
-  }, [
-    currency,
-    investmentPct,
-    metrosCuadradosStr,
-    purpose,
-    tasaCambioMXNPerUSD,
-    termSelected,
-    ubicacionSeleccionada,
-  ]);
+  const cotizada = useLiveQuoteCalculation();
 
   const guardianLabel = getPanelMessageText("guardian", language);
 

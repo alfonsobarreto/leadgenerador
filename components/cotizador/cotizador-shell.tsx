@@ -1,13 +1,21 @@
+"use client";
+
+import { useState } from "react";
 import type { JSX } from "react";
 import { CotizadorBackground } from "./cotizador-background";
-import { FinancialDashboard } from "./financial-dashboard";
 import { DesignMesa } from "./design-mesa";
+import { FinancialDashboard } from "./financial-dashboard";
+import { LeadGeneratorModal } from "./lead-generator-modal";
+import { useLiveQuoteCalculation } from "@/lib/use-live-quote-calculation";
 
 /**
  * Pantalla tipo app nativa: alto fijo (`100dvh`), sin scroll global;
  * sólo overflow local muy acotado en la mesa si el viewport cae muy bajo.
  */
 export function CotizadorShell(): JSX.Element {
+  const [leadModalOpen, setLeadModalOpen] = useState(false);
+  const quote = useLiveQuoteCalculation();
+
   return (
     <div className="relative flex h-[100dvh] flex-col overflow-hidden text-slate-100">
       <CotizadorBackground />
@@ -17,9 +25,11 @@ export function CotizadorShell(): JSX.Element {
             <FinancialDashboard />
           </header>
 
-          <DesignMesa />
+          <DesignMesa onOpenLeadModal={() => setLeadModalOpen(true)} />
         </div>
       </div>
+
+      <LeadGeneratorModal isOpen={leadModalOpen} onClose={() => setLeadModalOpen(false)} quote={quote} />
     </div>
   );
 }

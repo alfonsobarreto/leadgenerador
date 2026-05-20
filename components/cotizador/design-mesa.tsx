@@ -322,7 +322,7 @@ function PlazosYCurrencyRow(): JSX.Element {
   );
 }
 
-export function DesignMesa(): JSX.Element {
+export function DesignMesa({ onOpenLeadModal }: { onOpenLeadModal?: () => void }): JSX.Element {
   return (
     <section
       className="flex min-h-0 flex-1 flex-col justify-around overflow-y-auto overscroll-y-contain pb-[max(0.35rem,env(safe-area-inset-bottom))] [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar]:w-1.5"
@@ -334,7 +334,7 @@ export function DesignMesa(): JSX.Element {
       <InvestmentPctBoxes />
       <PlazosYCurrencyRow />
       <div className="shrink-0 px-px">
-        <QuoteCtaButton />
+        <QuoteCtaButton onClick={onOpenLeadModal} />
       </div>
     </section>
   );
