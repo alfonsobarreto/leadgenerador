@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: "via.placeholder.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "card-social-api.azurewebsites.net",
+        pathname: "/uploads/**",
+      },
     ],
   },
 };

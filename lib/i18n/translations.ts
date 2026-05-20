@@ -83,7 +83,7 @@ export const PANEL_TRANSLATIONS: Record<LanguageId, Record<PanelMessageKey, stri
     enganche1: "Let's go, let the dream have no excuse",
     terrenoSqm48: "Great Dream! You have 48 months without interest",
     terrenoSqm36: "Perfect size! You have 36 months without interest",
-    currencyMxn: "Orale! Here it is in pesos",
+    currencyMxn: "Alright! Here it is in pesos",
     currencyUsd: "Alright! in US dollar",
   },
 };

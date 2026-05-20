@@ -86,15 +86,16 @@ export function FinancialDashboard(): JSX.Element {
           type="button"
           aria-label={`Guardian del sueño: ${guardianLabel}`}
           onClick={guardianTap}
-          className="relative flex size-[5.5rem] shrink-0 items-center justify-center self-center overflow-hidden rounded-2xl border border-white/40 bg-zinc-950/70 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.55)] ring-1 ring-white/15 transition-[transform,filter] hover:brightness-110 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[6rem] sm:rounded-[1.35rem]"
+          className="relative flex size-[5.5rem] shrink-0 items-center justify-center self-center border-0 bg-transparent p-0 shadow-none transition-[transform,filter] hover:brightness-110 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ddd6fe] sm:size-[6rem]"
         >
           <Image
             src={avatarUrl}
             alt=""
-            fill
+            width={96}
+            height={96}
             unoptimized
-            sizes="128px"
-            className="object-cover"
+            sizes="(max-width: 640px) 88px, 96px"
+            className="size-full object-contain object-center drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
             key={avatarUrl}
           />
         </button>
