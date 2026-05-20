@@ -33,6 +33,9 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
       el.style.width = `${boxW}px`;
       el.style.maxWidth = `${boxW}px`;
 
+      const overflows = (): boolean =>
+        el.scrollHeight > boxH + 1 || el.scrollWidth > boxW + 1;
+
       let lo = MIN_FONT_PX;
       let hi = MAX_FONT_PX;
       let best = MIN_FONT_PX;
@@ -40,12 +43,9 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
       while (lo <= hi) {
         const mid = Math.floor((lo + hi) / 2);
         el.style.fontSize = `${mid}px`;
-        el.style.lineHeight = "1.1";
+        el.style.lineHeight = "1.12";
 
-        const overflows =
-          el.scrollHeight > boxH + 1 || el.scrollWidth > boxW + 1;
-
-        if (overflows) {
+        if (overflows()) {
           hi = mid - 1;
         } else {
           best = mid;
@@ -53,10 +53,13 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
         }
       }
 
-      el.style.fontSize = `${best}px`;
+      while (best > MIN_FONT_PX && overflows()) {
+        best -= 1;
+        el.style.fontSize = `${best}px`;
+      }
 
       let nextScale = 1;
-      if (el.scrollHeight > boxH + 1 || el.scrollWidth > boxW + 1) {
+      if (overflows()) {
         nextScale = Math.min(
           (boxW / el.scrollWidth) * 0.97,
           (boxH / el.scrollHeight) * 0.97,
@@ -89,13 +92,16 @@ export function DynamicHeadline({ text }: DynamicHeadlineProps): JSX.Element {
       className={`relative ${HEADLINE_BOX_H} min-w-0 w-full overflow-hidden`}
       aria-live="polite"
     >
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden p-px">
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden px-0.5">
         <span
           ref={textRef}
-          className="inline-block max-w-full origin-center text-center font-extrabold tracking-tight text-white break-words hyphens-auto drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
+          className="box-border block w-full origin-center hyphens-none break-normal text-center font-extrabold tracking-tight text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
           style={{
             fontSize: `${fontPx}px`,
-            lineHeight: 1.1,
+            lineHeight: 1.12,
+            wordBreak: "normal",
+            overflowWrap: "normal",
+            hyphens: "none",
             transform: ready ? `scale(${scale})` : undefined,
             opacity: ready ? 1 : 0,
           }}
