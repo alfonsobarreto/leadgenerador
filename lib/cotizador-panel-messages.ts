@@ -15,7 +15,9 @@ export const COTIZADOR_PANEL_MESSAGES = {
   enganche5: "¡Bravo! Inversion Inteligente",
   enganche1: "¡Vamos, Que el sueño no Tenga Excusa",
 
-  tamanoGt150: "¡Gran sueño! Tienes 48 meses sin intereses",
+  /** Solo Mi Terreno + slider m² */
+  terrenoSqm48: "¡Gran Sueño! Tienes 48 meses sin intereses",
+  terrenoSqm36: "¡Tamaño perfecto! Tienes 36 meses sin intereses",
 
   currencyMxn: "¡Órale! Aquí te van en Pesos",
   currencyUsd: "Alright! en dolores",
@@ -36,7 +38,8 @@ export const COTIZADOR_PANEL_AVATARS = {
   enganche5: "https://via.placeholder.com/150?text=5",
   enganche1: "https://via.placeholder.com/150?text=1",
 
-  tamano: "https://via.placeholder.com/150?text=Tamano",
+  terrenoSqm48: "https://via.placeholder.com/150?text=48MSI",
+  terrenoSqm36: "https://via.placeholder.com/150?text=36MSI",
 
   mxn: "https://via.placeholder.com/150?text=MXN",
   usd: "https://via.placeholder.com/150?text=USD",

@@ -2,9 +2,9 @@
 
 Mapa de interacciones para **texto**, **avatar** y **estado activo** de la Mesa de diseño.
 
-Se implementa en **Zustand** (`lib/cotizador-ui-store.ts`). La última acción con triada completa **sobrescribe** texto y avatar en pantalla (salvo el override temporal por **m² > 150**, ver abajo).
+Se implementa en **Zustand** (`lib/cotizador-ui-store.ts`) y `lib/terreno-sqm-panel.ts`. La última acción con triada completa **sobrescribe** texto y avatar en pantalla.
 
-Además se guarda **`baselineTrip`**: último par (mensaje, avatar) fijado por acciones distintas al override de tamaño. Sirve para **restaurar** el panel cuando el valor de m² vuelve a **≤ 150** tras haber estado por encima.
+**`baselineTrip`**: último par fijado por acciones distintas al slider (ubicación, enganche, divisa, clic en categoría de sueño, etc.).
 
 ---
 
@@ -20,8 +20,9 @@ Además se guarda **`baselineTrip`**: último par (mensaje, avatar) fijado por a
 | 6 | Clic enganche **10%** | `¡Uray! Ya Tenemos plusvalia` | `10` |
 | 7 | Clic enganche **5%** | `¡Bravo! Inversion Inteligente` | `5` |
 | 8 | Clic enganche **1%** | `¡Vamos, Que el sueño no Tenga Excusa` | `1` |
-| — | **m² > 150** (al escribir / cambiar) | `¡Gran sueño! Tienes 48 meses sin intereses` | `Tamano` (placeholder; no altera `baselineTrip`) |
-| — | **m² ≤ 150** tras haber estado > 150 | Restaura **`baselineTrip`** (último estado no-tamaño) | (mismo que `baselineTrip`) |
+| — | Slider m² con **Mi Terreno** y **m² ≥ 200** | `¡Gran Sueño! Tienes 48 meses sin intereses` | `48MSI` |
+| — | Slider m² con **Mi Terreno** y **m² ≤ 199** | `¡Tamaño perfecto! Tienes 36 meses sin intereses` | `36MSI` |
+| — | Slider m² con **Mi casa** o **Mi Negocio** | Sin MSI: mantiene mensaje de categoría (Casa / Negocio) | `Casa` / `Negocio` |
 | — | Tipo de cambio **MXN** / **USD** | `¡Órale! Aquí te van en Pesos` / `Alright! en dolores` | `MXN` / `USD` |
 | — | Clic en **avatar** (Guardián) | `Hola, Soy el Guardian de Tu sueño, Mucho Gusto` | `Inicial` |
 
@@ -41,5 +42,5 @@ Además se guarda **`baselineTrip`**: último par (mensaje, avatar) fijado por a
 2. **Mi casa / Mi Terreno / Mi Negocio** actualizan texto, avatar y **resaltado** del control correspondiente (**#2–#4**).
 3. Elegir ubicación concreta: **#5**; foco en el select sin cambiar valor **no** cambia el panel.
 4. **10% / 5% / 1%** disparan **#6–#8** y un solo enganche aparece activo.
-5. **m² > 150**: mensaje de gran sueño; al pasar a **≤ 150**, el panel vuelve al último estado guardado en **`baselineTrip`**.
+5. Slider m²: MSI **solo** con **Mi Terreno** (≥200 → 48 MSI; ≤199 → 36 MSI). Con **Mi casa** o **Mi Negocio**, el panel no cambia a promos MSI.
 6. **MXN** / **USD** y clic en **avatar** actualizan panel y `baselineTrip`.

@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { clampSqmToPurposeBounds } from "./dream-sqm-bounds";
 import { COTIZADOR_PANEL_AVATARS, COTIZADOR_PANEL_MESSAGES } from "./cotizador-panel-messages";
+import {
+  panelTripForSqmChange,
+  terrenoSqmHighlight,
+  tripFromTerrenoMetros,
+} from "./terreno-sqm-panel";
 
 export type PurposeId = "lote-habitacional" | "terreno" | "negocio";
 
@@ -17,7 +22,7 @@ type TripTuple = readonly [message: string, avatarUrl: string];
 export type CotizadorUiState = {
   dynamicMessage: string;
   avatarUrl: string;
-  /** Último par texto+avatar fijado por una acción que no sea el override por m² &gt; 150 (para restaurar al volver a ≤ 150). */
+  /** Último par texto+avatar fijado por acciones distintas al slider de m² (ubicación, enganche, divisa, etc.). */
   baselineTrip: TripTuple;
 
   purpose: PurposeId | null;
@@ -36,7 +41,7 @@ export type CotizadorUiState = {
 
   pickPurpose: (id: PurposeId) => void;
   pickInvestmentPct: (id: InvestmentPctId) => void;
-  /** Actualiza texto m² + reglas de tamaño (&gt; 150) y restaura panel desde baseline si aplica. */
+  /** Actualiza m²; MSI 36/48 solo si el sueño activo es Mi Terreno. */
   updateDreamSqmRaw: (raw: string) => void;
   pickCurrency: (id: CurrencyId) => void;
   guardianTap: () => void;
@@ -77,30 +82,30 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
 
   pickPurpose: (id) =>
     set((state) => {
-      const [msg, av] = tripFromPurpose(id);
+      const [categoryMsg, categoryAv] = tripFromPurpose(id);
       const clamped = clampSqmToPurposeBounds(
         Number.parseFloat(state.metrosCuadradosStr),
         id,
       );
       const sqmStr = String(clamped);
-      const tamanoHuge = clamped > 150;
 
-      if (tamanoHuge) {
+      if (id === "terreno") {
+        const [msg, av] = tripFromTerrenoMetros(clamped);
         return {
           purpose: id,
-          dynamicMessage: COTIZADOR_PANEL_MESSAGES.tamanoGt150,
-          avatarUrl: COTIZADOR_PANEL_AVATARS.tamano,
-          baselineTrip: [msg, av],
+          dynamicMessage: msg,
+          avatarUrl: av,
+          baselineTrip: [categoryMsg, categoryAv],
           metrosCuadradosStr: sqmStr,
-          tamanoHuge: true,
+          tamanoHuge: terrenoSqmHighlight(clamped, id),
         };
       }
 
       return {
         purpose: id,
-        dynamicMessage: msg,
-        avatarUrl: av,
-        baselineTrip: [msg, av],
+        dynamicMessage: categoryMsg,
+        avatarUrl: categoryAv,
+        baselineTrip: [categoryMsg, categoryAv],
         metrosCuadradosStr: sqmStr,
         tamanoHuge: false,
       };
@@ -141,26 +146,25 @@ export const useCotizadorUiStore = create<CotizadorUiState>((set, get) => ({
     }),
 
   updateDreamSqmRaw: (raw) => {
-    const v = clampSqmToPurposeBounds(Number.parseFloat(raw), get().purpose);
+    const purpose = get().purpose;
+    const v = clampSqmToPurposeBounds(Number.parseFloat(raw), purpose);
     const sqmStr = String(v);
-    const tamanoHuge = v > 150;
+    const panelTrip = panelTripForSqmChange(purpose, v);
 
-    if (tamanoHuge) {
+    if (panelTrip) {
+      const [msg, av] = panelTrip;
       set({
         metrosCuadradosStr: sqmStr,
-        tamanoHuge: true,
-        dynamicMessage: COTIZADOR_PANEL_MESSAGES.tamanoGt150,
-        avatarUrl: COTIZADOR_PANEL_AVATARS.tamano,
+        dynamicMessage: msg,
+        avatarUrl: av,
+        tamanoHuge: terrenoSqmHighlight(v, purpose),
       });
       return;
     }
 
-    const [bMsg, bAv] = get().baselineTrip;
     set({
       metrosCuadradosStr: sqmStr,
       tamanoHuge: false,
-      dynamicMessage: bMsg,
-      avatarUrl: bAv,
     });
   },
 
