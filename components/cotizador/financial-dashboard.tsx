@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useMemo } from "react";
 import type { JSX } from "react";
+import { DynamicHeadline } from "@/components/cotizador/dynamic-headline";
 import { calcularCotizacion } from "@/lib/cotizacion-calculator";
 import { COTIZADOR_PANEL_MESSAGES } from "@/lib/cotizador-panel-messages";
 import type { CurrencyId, InvestmentPctId, TermId } from "@/lib/cotizador-ui-store";
@@ -75,10 +76,8 @@ export function FinancialDashboard(): JSX.Element {
   return (
     <div className="relative isolate shrink-0 pb-3 pt-[max(0.5rem,env(safe-area-inset-top))]">
       {/* Fila título + avatar: sin posición absoluta ni solapamiento con la tarjeta inferior */}
-      <div className="mx-auto flex max-w-xl items-start gap-3 px-1 sm:gap-4 sm:px-2">
-        <h1 className="min-h-0 min-w-0 flex-1 text-balance pt-0.5 text-[0.95rem] font-extrabold leading-snug tracking-tight text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.4)] sm:text-[1.08rem] sm:leading-snug">
-          {dynamicMessage}
-        </h1>
+      <div className="mx-auto flex max-w-xl items-center gap-3 px-1 sm:gap-4 sm:px-2">
+        <DynamicHeadline text={dynamicMessage} />
 
         <button
           type="button"
