@@ -54,7 +54,7 @@
     <section class="result" aria-live="polite">
       <p>Total estimado</p>
       <p id="total" class="value">$0.00</p>
-      <small id="detail" aria-label="Detalle del cálculo">Detalle de cálculo</small>
+      <small id="detail" aria-label="Esperando entrada de datos">Detalle de cálculo</small>
     </section>
   </main>
 
@@ -91,6 +91,8 @@
       const landPriceValue = getPositiveNumber(landPrice);
       const buildAreaValue = getPositiveNumber(buildArea);
       const buildPriceValue = getPositiveNumber(buildPrice);
+      const landPriceText = currency.format(landPriceValue);
+      const buildPriceText = currency.format(buildPriceValue);
 
       const landSubtotal = landAreaValue * landPriceValue;
       const isHouse = propertyType.value === 'casa';
@@ -99,11 +101,11 @@
 
       total.textContent = currency.format(grandTotal);
       if (isHouse) {
-        detail.textContent = `Terreno: ${landAreaValue} m² × ${currency.format(landPriceValue)} + Construcción: ${buildAreaValue} m² × ${currency.format(buildPriceValue)}`;
-        detail.setAttribute('aria-label', `Detalle del cálculo para casa. Terreno ${landAreaValue} metros cuadrados por ${currency.format(landPriceValue)}. Construcción ${buildAreaValue} metros cuadrados por ${currency.format(buildPriceValue)}.`);
+        detail.textContent = `Terreno: ${landAreaValue} m² × ${landPriceText} + Construcción: ${buildAreaValue} m² × ${buildPriceText}`;
+        detail.setAttribute('aria-label', `Detalle del cálculo para casa. Terreno ${landAreaValue} metros cuadrados por ${landPriceText}. Construcción ${buildAreaValue} metros cuadrados por ${buildPriceText}.`);
       } else {
-        detail.textContent = `Lote: ${landAreaValue} m² × ${currency.format(landPriceValue)}`;
-        detail.setAttribute('aria-label', `Detalle del cálculo para lote. ${landAreaValue} metros cuadrados por ${currency.format(landPriceValue)}.`);
+        detail.textContent = `Lote: ${landAreaValue} m² × ${landPriceText}`;
+        detail.setAttribute('aria-label', `Detalle del cálculo para lote. ${landAreaValue} metros cuadrados por ${landPriceText}.`);
       }
     }
 
