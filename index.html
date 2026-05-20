@@ -53,7 +53,7 @@
     <section class="result" aria-live="polite">
       <p>Total estimado</p>
       <p id="total" class="value">$0.00</p>
-      <small id="detail">Lote: 0 m² × $0.00</small>
+      <small id="detail" aria-label="Detalle del cálculo">Detalle de cálculo</small>
     </section>
   </main>
 
@@ -111,7 +111,6 @@
 
     [propertyType, landArea, landPrice, buildArea, buildPrice].forEach((el) => {
       el.addEventListener('input', refresh);
-      el.addEventListener('change', refresh);
     });
 
     refresh();
