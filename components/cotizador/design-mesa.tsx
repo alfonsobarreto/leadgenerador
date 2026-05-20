@@ -1,9 +1,10 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import type { JSX } from "react";
+import { DreamSizeSliderField } from "@/components/cotizador/dream-size-slider-field";
 import { clampSqmToPurposeBounds, parseSqmStored, sqmBoundsForPurpose } from "@/lib/dream-sqm-bounds";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import type { InvestmentPctId, PurposeId, TermId, UbicacionId } from "@/lib/cotizador-ui-store";
@@ -180,9 +181,12 @@ function DreamSizeSlider(): JSX.Element {
     }
   }, [purpose, updateDreamSqmRaw]);
 
-  const onSliderChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    updateDreamSqmRaw(event.target.value);
-  };
+  const onSqmValueChange = useCallback(
+    (next: number) => {
+      updateDreamSqmRaw(String(next));
+    },
+    [updateDreamSqmRaw],
+  );
 
   const fillPct = max > min ? ((sqmValue - min) / (max - min)) * 100 : 0;
 
@@ -205,24 +209,15 @@ function DreamSizeSlider(): JSX.Element {
         </span>
       </div>
 
-      <div className="touch-manipulation px-0.5 pt-2 pb-1.5">
-        <input
-          id="dream-size-slider"
-          type="range"
+      <div className="px-0.5 pt-1 pb-1">
+        <DreamSizeSliderField
           min={min}
           max={max}
-          step={1}
           value={sqmValue}
-          onChange={onSliderChange}
-          aria-labelledby="dream-size-slider-label"
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-valuenow={sqmValue}
-          aria-valuetext={`${sqmValue} metros cuadrados`}
-          style={{
-            background: `linear-gradient(to right, #8b2cf5 0%, #8b2cf5 ${fillPct}%, rgba(255,255,255,0.22) ${fillPct}%, rgba(255,255,255,0.22) 100%)`,
-          }}
-          className="dream-size-range block w-full cursor-pointer appearance-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#ddd6fe] focus-visible:ring-offset-2 focus-visible:ring-offset-black/50"
+          fillPct={fillPct}
+          ariaLabelledBy="dream-size-slider-label"
+          ariaValueText={`${sqmValue} metros cuadrados`}
+          onValueChange={onSqmValueChange}
         />
         <div className="mt-px flex justify-between px-0.5 text-[0.58rem] font-semibold tabular-nums text-white/55">
           <span>{min}</span>
